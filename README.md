@@ -1,19 +1,22 @@
-# Open-Source Online Database for Clinical Pathology Consults Readme #
+# Open-Source Online Database for Clinical Pathology Consults #
 
-Using a python framework Flask, and a PostgreSQL instance hosted on a server. The database is configured to have full-text search, and the application can either be configured to use Apache and University of Washington's pubCookie web authentication services to minimize the impact on IT maintenance or use forms authentication.
+## Overview ##
 
-The application offers
 
-* Interfaces to track incoming calls to on-call residents, search, list and view each record.
+One effective method for assessing core competencies in Clinical Pathology is through evaluation of a log of clinical cases.  This application was created to log resident consults received on Clinical Pathology call and is currently used by the Laboratory Medicine residents at the University of Washington.  It uses the Flask python framework and a PostgreSQL instance hosted on a server. The application is configured to use Apache and University of Washington's pubCookie web authentication services but can be configured to use forms authentication.
+
+The application offers:
+
+* Interfaces to track incoming calls to on-call residents, as well as search, list and view each record.
 * Search functionality that allows residents to search the meta-data fields and free text regions separately and allows saving search queries for future use and reporting.
-* Formatted printing for presenting cases during call rounds and includes an option of excluding protected health information for educational purposes.
-* Interfaces to create new records and edit old records are optimized for faster data entry, and include features such as templates for pre-determined text structures, insertion of tables for specific call types, automatic saving of non-submitted data to the server for auto-restore, tagging, flagging, linking to other database entries and PubMed records, and automated search for a patient’s previous entries in the database when a medical record number is entered.
-* Additionally, users (including faculty) can comment on other user entries for follow up and education, and vote on useful entries to make them more visible.
-* There are multiple user account levels, allowing some users permission to create and delete other users and maintain various aspects of the system.
+* Formatted printing for presenting cases during call rounds, with an option for excluding protected health information (from metadata) for educational purposes.
+* Features such as templates for pre-determined text structures, insertion of tables for specific call types, automatic saving of non-submitted data to the server for auto-restore, tagging, flagging, linking to other database entries and PubMed records, and automated search for a patient’s previous entries in the database when a medical record number is entered.
+* User commenting (eg. faculty) on other user entries for follow up and education and voting for useful entries to make them more visible.
+* Multiple user account levels, allowing some users permission to create and delete other users and maintain various aspects of the system.
 
-Tested on all major browsers and operating systems and an instance is currently in use by University of Washington since July 2013.
+This application has been tested on all major browsers and operating systems.  An instance has been used by the University of Washington Department of Laboratory Medicine since July 2013.
 
-
+Details about the tool and its development were presented at the 2014 meeting for the Academy of Clinical Laboratory Physicians and Scientists: "An Open-Source Online Database for Clinical Pathology Consults", Cigdem Himmetoglu Ussakli, Patrick C. Mathias, Sinan Ussakli, Noah G. Hoffman, ACLPS 2014, San Francisco, CA.
 
 ## Directory Structure ##
 
@@ -39,7 +42,7 @@ Tested on all major browsers and operating systems and an instance is currently 
     uwdb.wsgi    - wsgi gate for Apache.
 
 
-## Depencendies ##
+## Dependencies ##
 
     Apache2    - no specific version, we're using latest as of 2013.
     Python     - version 2.7
@@ -56,7 +59,7 @@ Tested on all major browsers and operating systems and an instance is currently 
 
 ## A very quick installation guide
 
-Check the [INSTALL.md](INSTALL.md) file, it doesn't consider python virtual environments, https, database security, but it gives you the app up and running as fast as possible. 
+Check the [INSTALL.md](INSTALL.md) file for a more detailed installation guide.  The information below doesn't consider python virtual environments, https, or database security, but it gets you the app up and running as fast as possible.
 
 ## Apache configuration ##
 
