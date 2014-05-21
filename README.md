@@ -56,7 +56,7 @@ Tested on all major browsers and operating systems and an instance is currently 
 
 ## A very quick installation guide
 
-Check the [Install.md](Install.md) file, it doesn't consider python virtual environments, https, database security, but it gives you the app up and running as fast as possible. 
+Check the [INSTALL.md](INSTALL.md) file, it doesn't consider python virtual environments, https, database security, but it gives you the app up and running as fast as possible. 
 
 ## Apache configuration ##
 
