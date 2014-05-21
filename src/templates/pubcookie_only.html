@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div style="font-size: 8em; line-height: normal; padding-bottom: 1em;">:(</div>
+    <h3>
+        Sorry, login will not work.
+    </h3>
+    <p>
+        This site is configured to be used only by PubCookie authentication. You cannot manually login to this site.
+    </p>
+    {% if (uwnetid) %}
+    <p>
+        You are most probably seeing this message because your UWNetID is not configured to work with this web site. Please contact your support and let them now to add your UWNetID (<strong>{{ uwnetid }}</strong>) to this system.
+    </p>
+
+    {% endif %}
+{% endblock %}

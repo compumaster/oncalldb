@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+{% block body %} 
+<script>
+    function queryhelp()
+    {
+        if ($("#adv").prop('checked') == true)
+        {
+            $("#standardqueryhelp").hide();
+            $("#advancedqueryhelp").show();
+        }
+        else
+        {
+            $("#standardqueryhelp").show();
+            $("#advancedqueryhelp").hide();
+        }
+    }
+    $(document).ready(function () {
+        $('#fromdt').datepicker();
+        $('#todt').datepicker();
+        $("#hosp").select2({'width':'270px'});
+        $("#resident").select2({ 'width': '270px' });
+        $("#class").select2({ 'width': '270px' });
+        $("#recenttype").select2({ 'width': '170px' });
+        $("#sortby").select2({ 'width': '270px' });
+        queryhelp();
+        // because of select2's changing the DOM call initTrip again for this page.
+        initTrip();
+
+    });
+    function duplicate() {
+        $('#searchSet').clone().appendTo('#searchContainer');
+    }
+</script>
+<div class="row-fluid">
+    <div class="span12">
+        <form id="searchform" class="form-horizontal" action="{{ url_for('search') }}" method="GET">
+            <div id="searchContainer" class="on-call-form on-call-form-search">
+                {% if message %}
+                <div class="alert alert-error">
+                   {{ message }}
+                </div>
+                {% endif %}
+                <div class="control-group">
+                    <label class="control-label" for="q">Search query</label>
+                    <div class="controls">
+                        <input type="text" name="q" id="q" placeholder="query" class="input-xlarge" {% if form %} value="{{ form['q'] }}"{% endif %}>
+                        <label class="checkbox inline">
+                            <input type="checkbox" name="meta" id="meta" {% if form %} {% if form.meta == 'on' %} checked {% endif %} {% else %} checked {% endif %}/>meta&nbsp;data
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" name="body" id="body" {% if form %} {% if form.body == 'on' %} checked {% endif %} {% else %} checked {% endif %}/>body
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" name="adv" id="adv" {% if form %} {% if form.adv == 'on' %} checked {% endif %}{% endif %}
+                            onClick="queryhelp()"/>advanced query
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <span class='help-inline' id='standardqueryhelp'>term1 term2</span>
+                        <span class='help-inline' id='advancedqueryhelp' style='display: none'>(term1 | term2) & term3 & ! term4</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="hosp">Hospital</label>
+                    <div class="controls">
+                        <select name="hosp" id="hosp" placeholder="Hospital">
+                            <option value="">any</option>
+                            {% for row in pt_hospital %}
+                              <option {% if form and form['hosp'] == row.title %}selected {% endif %}value="{{ row.title }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="resident">Resident Name</label>
+                    <div class="controls">
+                        <select id="resident" name="resident">
+                            <option value="">any</option>
+                            {% for row in res_name %}
+                              <option {% if form and form['resident'] == row.name %}selected {% endif %}value="{{ row.name}}">{{ row.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="class">Classification</label>
+                    <div class="controls">
+                        <select name="class" id="class" placeholder="Classification">
+                            <option value="">any</option>
+                            {% for row in call_classification %}
+                               <option {% if form and form['class'] == row.title %}selected {% endif %}value="{{ row.title }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="fromdt">Date Range</label>
+                    <div class="controls">
+                        <input type="text" name="fromdt" id="fromdt" placeholder="from" style="width: 120px" {% if form %} value="{{ form['fromdt'] }}"{% endif %}>
+                        <input type="text" name="todt" id="todt" placeholder="to" style="width: 120px" {% if form %} value="{{ form['todt'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="recent">Recent</label>
+                    <div class="controls">
+                        <input type="number" name="recent" id="recent" style="width: 120px" {% if form %} value="{{ form['recent'] }}"{% endif %}>
+                        <select name="recenttype" id="recenttype">
+                            {% for row in recent_type %}
+                               <option {% if form and form['recenttype'] == row.title %}selected {% endif %}value="{{ row.title }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="sortby">Sort by</label>
+                    <div class="controls">
+                        <select name="sortby" id="sortby">
+                            {% for row in sort_by %}
+                               <option {% if form and form['sortby'] == row.value %}selected {% endif %}value="{{ row.value }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% for error in errors %}
+                <div class="alert alert-error">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ error }}
+                </div>
+            {% endfor %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="search-button">Search</button>
+            </div>
+            <div class="control-group">
+            </div>
+        </form>
+        {% if records %}
+        <div class="row-fluid">
+            <div class="span12">
+                <a id='print-records' href="{{ url_for('printcalls', id=recordidslist) }}" class="btn">Print these records</a>
+            </div>
+        </div>
+         <div class="row-fluid">
+            <div class="span12" style="margin-top:10px">
+                {{ records|count() }} record{% if records|count() > 2 %}s{% endif %} found.{% if records|count() == 100 %} (Search limits number of returned records to 100.){% endif %}
+            </div>
+        </div>
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+              <th>Call&nbsp;Id</th>
+                <th>Resident</th>
+                <th>Specific Request</th>
+                <th>Hospital</th>
+                <th>Classification</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in records  %}
+            <tr class="tr-link">
+              <td>{{ row.id }}</td>
+              <td>{{ row.username }}</td>
+              <td><a href="{{ url_for('show', id=row.id) }}">{{ row.specific_request|default('- blank -', true) }}</a></td>
+              <td>{{ row.pt_hospital }}</td>
+              <td>{{ row.call_classification }}</td>
+              <td>{{ row.date_of_call }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    <!--/span-->
+</div>
+<div id="savednotify">saved</div>
+
+
+{% endblock %}

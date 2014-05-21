@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="row-fluid">
+      <div class="span12">
+          <h2>Login</h2>
+          <form class="form-horizontal" action="" method="post">
+              <p class="lead">The resource you're trying to access is restricted.</p>
+              <p>Please login with your UW id, if you're one of the predefined set of users, you will be able to login to this site.</p>
+              <div class="on-call-form">
+                  <div class="control-group">
+                      <label class="control-label" for="username">Username</label>
+                      <div class="controls">
+                          <input type="text" name="username" id="username" placeholder="username"><span class="help-inline"><strong>username</strong>@u.washington.edu</span>
+                      </div>
+                  </div>
+                  <div class="control-group">
+                      <label class="control-label" for="password">Password</label>
+                      <div class="controls">
+                          <input type="password" name="password" id="password" placeholder="password"><span class="help-inline">Your UW password</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="form-actions">
+                  <button type="submit" class="btn btn-large btn-primary">Login</button>
+              </div>
+          </form>
+      </div>
+      <!--/span-->
+  </div>
+{% endblock %}

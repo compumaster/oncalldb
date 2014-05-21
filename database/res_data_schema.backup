@@ -1,0 +1,622 @@
+--
+-- PostgreSQL database dump
+-- 
+-- !!!!!!
+-- IMPORTANT THIS DUMP WILL CREATE A SCHEMA residents AND CREATE THE TABLES UNDER THAT SCHEMA.
+-- !!!!!!
+--
+
+-- Dumped from database version 8.4.20
+-- Dumped by pg_dump version 9.3.1
+-- Started on 2014-05-10 13:02:15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = off;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET escape_string_warning = off;
+
+--
+-- TOC entry 12 (class 2615 OID 355294)
+-- Name: residents; Type: SCHEMA; Schema: -; Owner: residents
+--
+
+CREATE SCHEMA residents;
+
+
+ALTER SCHEMA residents OWNER TO residents;
+
+SET search_path = residents, pg_catalog;
+
+--
+-- TOC entry 233 (class 1255 OID 925516)
+-- Name: comments_count(); Type: FUNCTION; Schema: residents; Owner: residents
+--
+
+CREATE FUNCTION comments_count() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$    BEGIN
+	IF TG_OP='DELETE' THEN
+	    IF OLD.data_id IS NULL THEN
+                RAISE EXCEPTION 'data_id cannot be null';
+            END IF;
+            UPDATE residents.res_data SET commented = (SELECT COUNT(*) FROM residents.comments WHERE data_id = OLD.data_id) WHERE id = OLD.data_id;
+            RETURN OLD;
+	ELSE
+	    IF NEW.data_id IS NULL THEN
+                RAISE EXCEPTION 'data_id cannot be null';
+            END IF;
+            UPDATE residents.res_data SET commented = (SELECT COUNT(*) FROM residents.comments WHERE data_id = NEW.data_id) WHERE id = NEW.data_id;
+            RETURN NEW;
+        END IF;
+    END;
+$$;
+
+
+ALTER FUNCTION residents.comments_count() OWNER TO residents;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 198 (class 1259 OID 355428)
+-- Name: call_classification; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE call_classification (
+    id smallint NOT NULL,
+    title character varying(25)
+);
+
+
+ALTER TABLE residents.call_classification OWNER TO residents;
+
+--
+-- TOC entry 200 (class 1259 OID 355437)
+-- Name: comments_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE comments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.comments_id_seq OWNER TO residents;
+
+--
+-- TOC entry 199 (class 1259 OID 355431)
+-- Name: comments; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE comments (
+    id integer DEFAULT nextval('comments_id_seq'::regclass) NOT NULL,
+    data_id integer NOT NULL,
+    user_id integer NOT NULL,
+    blob text NOT NULL,
+    updated timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE residents.comments OWNER TO residents;
+
+--
+-- TOC entry 201 (class 1259 OID 355439)
+-- Name: from_title; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE from_title (
+    id smallint NOT NULL,
+    title character varying(25)
+);
+
+
+ALTER TABLE residents.from_title OWNER TO residents;
+
+--
+-- TOC entry 202 (class 1259 OID 355442)
+-- Name: pt_hospital; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE pt_hospital (
+    id smallint NOT NULL,
+    title character varying(25),
+    disp_order integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE residents.pt_hospital OWNER TO residents;
+
+--
+-- TOC entry 203 (class 1259 OID 355445)
+-- Name: res_autosave; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_autosave (
+    id character varying(50) NOT NULL,
+    blob text
+);
+
+
+ALTER TABLE residents.res_autosave OWNER TO residents;
+
+--
+-- TOC entry 207 (class 1259 OID 355471)
+-- Name: res_data_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE res_data_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.res_data_id_seq OWNER TO residents;
+
+--
+-- TOC entry 204 (class 1259 OID 355451)
+-- Name: res_data; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_data (
+    id integer DEFAULT nextval('res_data_id_seq'::regclass) NOT NULL,
+    user_id integer NOT NULL,
+    date_of_call date NOT NULL,
+    time_of_call time without time zone NOT NULL,
+    from_title character varying(50) NOT NULL,
+    from_who character varying(100) NOT NULL,
+    from_service_floor character varying(100) NOT NULL,
+    telephone_number character varying(50) NOT NULL,
+    pt_name character varying(50) NOT NULL,
+    pt_hosp_number character varying(50) NOT NULL,
+    pt_location character varying(50) NOT NULL,
+    pt_hospital character varying(50) NOT NULL,
+    specific_request character varying(200) NOT NULL,
+    staff_contacted character varying(100) NOT NULL,
+    relevant_info text NOT NULL,
+    action_taken text NOT NULL,
+    follow_up text NOT NULL,
+    tabular_data text DEFAULT ''::text NOT NULL,
+    call_classification character varying(50) DEFAULT ''::character varying NOT NULL,
+    updated timestamp without time zone DEFAULT '2000-01-01 00:00:00'::timestamp without time zone NOT NULL,
+    created timestamp without time zone DEFAULT ('now'::text)::timestamp without time zone NOT NULL,
+    viewed integer DEFAULT 0 NOT NULL,
+    liked integer DEFAULT 0 NOT NULL,
+    deleted boolean DEFAULT false NOT NULL,
+    flagged boolean DEFAULT false NOT NULL,
+    commented integer DEFAULT 0 NOT NULL,
+    fts_meta tsvector,
+    fts_data tsvector,
+    physician_name character varying(100) DEFAULT ''::character varying NOT NULL,
+    physician_telephone_number character varying(50) DEFAULT ''::character varying NOT NULL,
+    flag integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE residents.res_data OWNER TO residents;
+
+--
+-- TOC entry 206 (class 1259 OID 355464)
+-- Name: res_data_dump; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_data_dump (
+    id integer NOT NULL,
+    resident_name character varying(50),
+    call_week character varying(5),
+    call_number integer,
+    date_of_call character varying(20),
+    time_of_call character varying(20),
+    from_title character varying(50),
+    from_who character varying(100),
+    from_service_floor character varying(100),
+    telephone_number character varying(50),
+    pt_name character varying(50),
+    pt_hosp_number character varying(50),
+    pt_location character varying(50),
+    pt_hospital character varying(50),
+    specific_request character varying(200),
+    staff_contacted character varying(100),
+    relevant_info text,
+    action_taken text,
+    follow_up text,
+    additional_information text,
+    call_classification character varying(50),
+    updated timestamp without time zone
+);
+
+
+ALTER TABLE residents.res_data_dump OWNER TO residents;
+
+--
+-- TOC entry 205 (class 1259 OID 355462)
+-- Name: res_data_dump_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE res_data_dump_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.res_data_dump_id_seq OWNER TO residents;
+
+--
+-- TOC entry 209 (class 1259 OID 355477)
+-- Name: res_data_likes_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE res_data_likes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.res_data_likes_id_seq OWNER TO residents;
+
+--
+-- TOC entry 208 (class 1259 OID 355473)
+-- Name: res_data_likes; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_data_likes (
+    id integer DEFAULT nextval('res_data_likes_id_seq'::regclass) NOT NULL,
+    user_id integer NOT NULL,
+    res_data_id integer NOT NULL,
+    created timestamp without time zone DEFAULT ('now'::text)::timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE residents.res_data_likes OWNER TO residents;
+
+--
+-- TOC entry 211 (class 1259 OID 355482)
+-- Name: res_data_tags_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE res_data_tags_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.res_data_tags_id_seq OWNER TO residents;
+
+--
+-- TOC entry 210 (class 1259 OID 355479)
+-- Name: res_data_tags; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_data_tags (
+    id integer DEFAULT nextval('res_data_tags_id_seq'::regclass) NOT NULL,
+    data_id integer NOT NULL,
+    tag character varying(50) NOT NULL,
+    user_id integer NOT NULL
+);
+
+
+ALTER TABLE residents.res_data_tags OWNER TO residents;
+
+SET default_with_oids = true;
+
+--
+-- TOC entry 212 (class 1259 OID 355484)
+-- Name: res_savehistory; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_savehistory (
+    id integer NOT NULL,
+    updated timestamp without time zone,
+    blob text
+);
+
+
+ALTER TABLE residents.res_savehistory OWNER TO residents;
+
+--
+-- TOC entry 214 (class 1259 OID 355496)
+-- Name: res_template_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE res_template_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.res_template_id_seq OWNER TO residents;
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 213 (class 1259 OID 355490)
+-- Name: res_template; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_template (
+    id integer DEFAULT nextval('res_template_id_seq'::regclass) NOT NULL,
+    title character varying(50) NOT NULL,
+    user_id integer NOT NULL,
+    department_template boolean NOT NULL,
+    blob text NOT NULL
+);
+
+
+ALTER TABLE residents.res_template OWNER TO residents;
+
+--
+-- TOC entry 216 (class 1259 OID 355501)
+-- Name: res_template_star_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE res_template_star_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.res_template_star_id_seq OWNER TO residents;
+
+--
+-- TOC entry 215 (class 1259 OID 355498)
+-- Name: res_template_star; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE res_template_star (
+    id integer DEFAULT nextval('res_template_star_id_seq'::regclass) NOT NULL,
+    template_id integer NOT NULL,
+    user_id integer NOT NULL
+);
+
+
+ALTER TABLE residents.res_template_star OWNER TO residents;
+
+--
+-- TOC entry 217 (class 1259 OID 355503)
+-- Name: tags; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE tags (
+    tag character varying(50) NOT NULL
+);
+
+
+ALTER TABLE residents.tags OWNER TO residents;
+
+--
+-- TOC entry 219 (class 1259 OID 355516)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: residents; Owner: residents
+--
+
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE residents.users_id_seq OWNER TO residents;
+
+--
+-- TOC entry 218 (class 1259 OID 355506)
+-- Name: users; Type: TABLE; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE TABLE users (
+    id integer DEFAULT nextval('users_id_seq'::regclass) NOT NULL,
+    fullname character varying(100) NOT NULL,
+    username character varying(50) NOT NULL,
+    networkid character varying(50) NOT NULL,
+    pager character varying(50) NOT NULL,
+    email character varying(50) NOT NULL,
+    cellphone character varying(50) NOT NULL,
+    deskphone character varying(50) NOT NULL,
+    auth_level integer DEFAULT 10 NOT NULL,
+    password character varying(100) DEFAULT ''::character varying NOT NULL,
+    created timestamp without time zone DEFAULT ('now'::text)::timestamp without time zone NOT NULL,
+    last_access timestamp without time zone DEFAULT ('now'::text)::timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE residents.users OWNER TO residents;
+
+--
+-- TOC entry 1941 (class 2606 OID 355519)
+-- Name: call_classification_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY call_classification
+    ADD CONSTRAINT call_classification_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1944 (class 2606 OID 355521)
+-- Name: comments_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY comments
+    ADD CONSTRAINT comments_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1946 (class 2606 OID 355523)
+-- Name: from_title_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY from_title
+    ADD CONSTRAINT from_title_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1948 (class 2606 OID 355525)
+-- Name: pt_hospital_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY pt_hospital
+    ADD CONSTRAINT pt_hospital_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1950 (class 2606 OID 355527)
+-- Name: res_autosave_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_autosave
+    ADD CONSTRAINT res_autosave_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1954 (class 2606 OID 355529)
+-- Name: res_data_dump_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_data_dump
+    ADD CONSTRAINT res_data_dump_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1952 (class 2606 OID 355531)
+-- Name: res_data_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_data
+    ADD CONSTRAINT res_data_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1956 (class 2606 OID 355533)
+-- Name: res_data_likes_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_data_likes
+    ADD CONSTRAINT res_data_likes_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1959 (class 2606 OID 355535)
+-- Name: res_data_tags_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_data_tags
+    ADD CONSTRAINT res_data_tags_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1963 (class 2606 OID 355537)
+-- Name: res_template_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_template
+    ADD CONSTRAINT res_template_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1965 (class 2606 OID 355539)
+-- Name: res_template_star_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY res_template_star
+    ADD CONSTRAINT res_template_star_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1967 (class 2606 OID 355541)
+-- Name: tags_tag; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY tags
+    ADD CONSTRAINT tags_tag PRIMARY KEY (tag);
+
+
+--
+-- TOC entry 1969 (class 2606 OID 355543)
+-- Name: users_id; Type: CONSTRAINT; Schema: residents; Owner: residents; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1942 (class 1259 OID 355544)
+-- Name: comments_data_id; Type: INDEX; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE INDEX comments_data_id ON comments USING btree (data_id);
+
+
+--
+-- TOC entry 1957 (class 1259 OID 355545)
+-- Name: res_data_tags_data_id; Type: INDEX; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE INDEX res_data_tags_data_id ON res_data_tags USING btree (data_id);
+
+
+--
+-- TOC entry 1960 (class 1259 OID 355546)
+-- Name: res_data_tags_tag; Type: INDEX; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE INDEX res_data_tags_tag ON res_data_tags USING btree (tag);
+
+
+--
+-- TOC entry 1961 (class 1259 OID 355547)
+-- Name: res_savehistory_id; Type: INDEX; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE INDEX res_savehistory_id ON res_savehistory USING btree (id);
+
+
+--
+-- TOC entry 1970 (class 1259 OID 355548)
+-- Name: users_lower_networkid_idx; Type: INDEX; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE UNIQUE INDEX users_lower_networkid_idx ON users USING btree (lower((networkid)::text));
+
+
+--
+-- TOC entry 1971 (class 1259 OID 355549)
+-- Name: users_lower_username_idx; Type: INDEX; Schema: residents; Owner: residents; Tablespace: 
+--
+
+CREATE UNIQUE INDEX users_lower_username_idx ON users USING btree (lower((username)::text));
+
+
+--
+-- TOC entry 1972 (class 2620 OID 925517)
+-- Name: comments_count; Type: TRIGGER; Schema: residents; Owner: residents
+--
+
+CREATE TRIGGER comments_count
+    AFTER INSERT OR DELETE OR UPDATE ON comments
+    FOR EACH ROW
+    EXECUTE PROCEDURE comments_count();
+
+
+-- Completed on 2014-05-10 13:02:18
+
+--
+-- PostgreSQL database dump complete
+--
+

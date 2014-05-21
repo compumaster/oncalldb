@@ -1,0 +1,8 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+    <h1>Error :(</h1>
+        <div class="well well-large">
+            <p>This application is at read only mode.</p>
+            <a class='btn btn-primary' href="{{ url_for('home') }}">Go to home page</a>
+        </div>
+{% endblock %}

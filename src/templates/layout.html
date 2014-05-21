@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include 'head.html' %}
+<script type="text/javascript">
+    var endpoint = "{{ request.endpoint }}";
+    $(document).ready(function() {
+        $('.dropdown-toggle').dropdown();
+    });
+</script>
+</head>
+
+<body  data-offset="50" data-target="#side-nav" data-spy="scroll">
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+      <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      <a class="brand" href="{{ url_for('home') }}">On-Call Database</a>
+      <div class="nav-collapse collapse">
+        <p class="navbar-text pull-right">{% if 'user_username' in session %}<a href="{{ url_for('me') }}" class="navbarlink">{{ session['user_username'] }} {% if session['user_auth_level'] >= 10000 %} (administrator){% elif session['user_auth_level'] >= 1000 %} (poweruser){% elif session['user_auth_level'] < 100 %} (readonly){% endif %}</a>{% else %} Please <a href="{{ url_for('login') }}" class="navbar-link">login</a> {% endif %} </p>
+        <ul class="nav">
+          <li{% if request.endpoint == 'home' %} class="active"{% endif %}><a href="{{ url_for('home') }}" id="nav-home">Home</a></li>
+          <li{% if request.endpoint == 'search' %} class="active"{% endif %}><a href="{{ url_for('search') }}" id="nav-search">Search</a></li>
+          {% if not config.READ_ONLY %}<li{% if request.endpoint == 'new' %} class="active"{% endif %}><a href="{{ url_for('new') }}" id="nav-new">New</a></li>{% endif %}
+          <li{% if request.endpoint == 'list' %} class="active"{% endif %}><a href="{{ url_for('list') }}" id="nav-list">List</a></li>
+          <li{% if request.endpoint == 'tags' %} class="active"{% endif %}><a href="{{ url_for('tags') }}" id="nav-tags">Tags</a></li>
+          <li{% if request.endpoint == 'users' %} class="active"{% endif %}><a href="{{ url_for('users') }}" id="nav-users">Users</a></li>
+          <li class="dropdown">
+              <a onclick="$().dropdown('toggle');" class="dropdown-toggle" id="linkslabel">Links <b class="caret"></b></a>
+          <ul class="dropdown-menu"  aria-labelledby="linkslabel">
+            {% include "links.html" %}
+          </ul>
+          </li>
+          {% if not 'user_username' in session %}<li><a href="{{ url_for('login') }}" class="navbar-link">Login</a></li>{% endif %}
+          {% if 'user_username' in session %}{% if not config.USES_PUBCOOKIE %}<li><a href="{{ url_for('logout') }}" class="navbar-link">Logout</a></li>{% endif %}{% endif %}
+        </ul>
+      </div>
+
+      <!--/.nav-collapse --> 
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid" style="min-height: 480px;">
+  <div class="row-fluid">
+    {% if (request.endpoint != 'home') %}
+        <div class="span12">
+    {% else %}
+        <div class="span9">
+    {% endif %}
+            {% block body %}{% endblock %}
+        </div>
+
+
+
+      {% if request.endpoint == 'home' %}
+            <div class="span3">{% include 'sidebar.html' %}</div>
+      {% endif %}
+    </div>
+
+  </div>
+  <footer class="hideprint">
+      <div class="container">
+          <a href="mailto:sinan.ussakli+residentsdb@gmail.com?subject=Residents LabMed Issue">Problems?</a> |
+          <a id="start-tour" style="cursor: pointer;">Tour</a> |
+          <a id="help" href="{{ url_for('help') }}">Help</a>
+      </div>
+  </footer>
+</div>
+<!--/.fluid-container--> 
+
+<!-- javascript
+    ================================================== --> 
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script src="{{ url_for('static', filename='assets/js/jquery.handsontable.full.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/select2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-datepicker.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-timepicker.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/site.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-transition.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-alert.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-modal.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-dropdown.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-scrollspy.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-tab.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-tooltip.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-popover.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-button.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-collapse.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-carousel.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-typeahead.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap-affix.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/jquery.deserialize.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/json2.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/trip.min.js') }}"></script>
+
+
+</body>
+</html>

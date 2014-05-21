@@ -1,0 +1,497 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+<style>
+    section:first-of-type {
+        padding-top: 0px;
+    }
+
+    section {
+        padding-top: 30px;
+        min-height: 300px;
+    }
+
+        /* just overwrite for this page */
+    .text-success {
+        font-weight: bold;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var $window = $(window)
+
+        // side bar
+        setTimeout(function () {
+            $('.bs-docs-sidenav').affix({
+                offset: {
+                    top: function () {
+                        return $window.width() <= 980 ? 290 : 210
+                    }, bottom: 270
+                }
+            })
+        }, 100)
+    });
+</script>
+<div class="row-fluid">
+<div class="span3" id="side-nav">
+    <ul class="nav nav-list bs-docs-sidenav" data-spy="affix" data-offset-top="100">
+        <li><a href="#overview"><i class="icon-chevron-right"></i> Overview</a></li>
+        <li><a href="#accounts"><i class="icon-chevron-right"></i> Accounts</a></li>
+        <li><a href="#new"><i class="icon-chevron-right"></i> Creating a new Call</a></li>
+        <li><a href="#edit"><i class="icon-chevron-right"></i> Editing a Call</a></li>
+        <li><a href="#view"><i class="icon-chevron-right"></i> Viewing</a></li>
+        <li><a href="#search"><i class="icon-chevron-right"></i> Searching</a></li>
+        <li><a href="#list"><i class="icon-chevron-right"></i> Listing</a></li>
+        <li><a href="#print"><i class="icon-chevron-right"></i> Printing</a></li>
+        <li><a href="#home"><i class="icon-chevron-right"></i> Home Screen</a></li>
+        <li><a href="#tags"><i class="icon-chevron-right"></i> Tags</a></li>
+        <li><a href="#other"><i class="icon-chevron-right"></i> Other Features</a></li>
+    </ul>
+</div>
+<div class="span9">
+<SECTION id="overview">
+    <DIV class="page-header">
+        <H1>Residents On-Call Database</H1></DIV>
+    <P>This database holds the meaning of life, the secrets of the
+        universe and everything else. It's the number 42. You will spend large amounts
+        of your life entering data
+
+        into this software. We have attempted to make it as easy as
+        possible.</P>
+
+    <P>One of the core assessment methods for competencies in Clinical Pathology is
+        to create a log of clinical procedures/cases. This database was created to address
+        the following issues:
+    <UL>
+        <LI>Residents utilize a large number of medical literature resources
+            in their
+            decision-making
+        </LI>
+        <LI>A knowledge base for answers to similar questions can increase efficiency</LI>
+        <LI>The benefits of previous efforts are lost without an archive</LI>
+        <LI>Residents are often outside the hospital while on call so a repository
+            of info can be helpful
+        </LI>
+        <LI>Having a database can improve resident performance and therefore
+            patient safety
+        </LI>
+    </UL>
+    <P></P>
+
+    <P>The proposed benefits of using this database include
+    <UL>
+        <LI>Generation of legible, formatted reports of each call</LI>
+        <LI>The reports can be circulated to the pertinent laboratory directors even
+            if the residents do not work with them directly
+        </LI>
+        <LI>De-identified reports can be generated to serve as documentation of
+            progress toward proficiency in clinical laboratory medicine
+        </LI>
+        <LI>The database is an addendum to the patient's medical record, which is
+            maintained intact in electronic format
+        </LI>
+    </UL>
+    <P></P>
+
+    <P>Key objectives of the new database software
+    <UL>
+        <LI>Minimize time spent using the software for data entry</LI>
+        <LI>Eliminate data loss</LI>
+        <LI>Minimize the impact of maintenance on IT staff</LI>
+        <LI>Mobile support</LI>
+        <P></P></UL>
+</SECTION>
+<SECTION id="accounts">
+    <DIV class="page-header">
+        <H1>Accounts</H1>
+
+        <H3>Your Account</H3>
+
+        <P>You can update your information at <A href="https://residents.labmed.washington.edu/oncalldb/me">
+            your account page</A>. You can access your account page by clicking
+            on your username at the right corner of the menu bar.</P>
+
+        <H3>Users and user authentication levels in the system</H3>
+
+        <P>A new user with network ID should be created on the database for that user to
+            access the system.</P>
+
+        <P>There are 4 different types of accounts on this database
+        <UL>
+            <LI>Read only users: They can only view the database, and also can comment on
+                existing records.
+            </LI>
+            <LI>Regular users: All user operations.</LI>
+            <LI>Power users: They can create new users, update user information, add new
+                tags.
+            </LI>
+            <LI>Administrators: Full read/write access on everything, including editing
+                other users records.
+            </LI>
+        </UL>
+        <P></P></DIV>
+</SECTION>
+<SECTION id="new">
+    <DIV class="page-header">
+        <H1>Creating a new call</H1>
+        <H4>No fields are required</H4>
+
+        <P>The system is designed to be as flexible as possible. Therefore no fields are
+            required (other than a valid date and time, which is autopopulated). You may
+            create a completely empty record.</P>
+        <H4>Autosave</H4>
+
+        <P>When editing a call, the contents of the page are saved every 30 seconds in case your
+            browser crashes or something else happens to your computer. If you open up a new call on
+            the same computer, you will presented with the choice to <CODE>Restore</CODE> the last autosaved page
+            or to <CODE>Ignore</CODE> the last autosave and start a new page.</P>
+        <H4>Formatting</H4>
+
+        <P>As this database is read by others and is an extension of the
+            patient's clinical record, please make an effort to format entries
+            so they are easy to read.</P>
+
+        <H3>Extra features</H3>
+        <H4>Hospital Number</H4>
+
+        <P>If you enter a hospital number that already exists on the system,the form will
+            automatically display other call entries added to the system for this patient.</P>
+        <H4>Tags</H4>
+
+        <P>Tags are intended to make call classification flexible but also straight-forward.
+            Currently there is an emphasis on classifying calls by division so
+            relevant faculty can quickly scan pertinent calls. You can only tag an entry with a tag that's
+            previously defined. Take a look at the <A
+                    href="https://residents.labmed.washington.edu/oncalldb/tags">Tags</A> page
+            to see possible tags. To enter a tag, start typingits name, and either completely type the tag or select
+            from autocomplete, then hit <CODE>Enter</CODE>. You can tag a call with as many tags as necessary.</P>
+        <H4>Linking a call to other calls.</H4>
+
+        <P>While editing <SPAN class="text-success">Relevant Information</SPAN>, <SPAN
+                class="text-success">Action Taken</SPAN> or <SPAN class="text-success">Follow
+Up</SPAN>, you can link to another call by typing the following:
+            <CODE>(call: 12345)</CODE> (or use the link to Call button). The number you should enter is the <SPAN
+                    class="text-success">Call Number</SPAN>. When you save the call and view
+            it, the system will create a link to the call number 12345.</P>
+        <H4>Linking to PUBMED</H4>
+
+        <P>In a similar fashion to linking to other calls, while editing <SPAN
+                class="text-success">Relevant Information</SPAN>, <SPAN
+                class="text-success">Action Taken</SPAN> or <SPAN class="text-success">Follow
+Up</SPAN>, you can create a link to a PUBMED article by typing
+            following: <CODE>(pubmed: 12345)</CODE> (or use the PUBMED button). When you save the call and
+            view it, the system will create a link to the PUBMED article number 12345.</P>
+        <H4>Templates</H4>
+
+        <P>Clicking the Templates dropdown button will show the starred templates. Clicking one of
+            them will insert the template that's defined under that name to the
+            text area you're editing. </P>
+
+        <DIV class="alert alert-info"> You own your own templates. No one
+            else can see them. Create as many templates as you wish.
+        </DIV>
+        <P>Clicking <SPAN class="text-success">More...</SPAN> will bring you the
+            Template Manager (try it out). </P>
+        <H5>New Template</H5>
+
+        <P>To create a new template,
+        <OL>
+            <LI>Click on <CODE><I class="icon-plus"></I> new</CODE> button.</LI>
+            <LI>Enter a template name, preferably a unique one to the field at right
+                section at the top.
+            </LI>
+            <LI>Enter the template body, (remember this could be anything) to the big text
+                area at right section.
+            </LI>
+            <LI>Click on <CODE><I class="icon-check"></I> save</CODE> button.</LI>
+        </OL>
+        <P></P>
+        <H5>Edit Template</H5>
+
+        <P>To edit an existing template,
+        <OL>
+            <LI>Click on the template name from the left section. This will load up the
+                template on right section.
+            </LI>
+            <LI>Change the template anyway you want, its name and its body.</LI>
+            <LI>Click on <CODE><I class="icon-check"></I> save</CODE> button.</LI>
+        </OL>
+        <P></P>
+        <H5>Delete Template</H5>
+
+        <P>To delete an existing template,
+        <OL>
+            <LI>Click on the template name from the left section. This will load up the
+                template on right section.
+            </LI>
+            <LI>Click on <CODE><I class="icon-trash"></I> delete</CODE> button.</LI>
+        </OL>
+        <P></P>
+        <H5>Star a Template</H5>
+
+        <P>Starring a template brings this template to the Templates drop down menu. To
+            star a template,
+        <OL>
+            <LI>Click on <CODE><I class="icon-star"></I></CODE> button next to the
+                template name.
+            </LI>
+            <LI>To unstar, click on <CODE><I class="icon-star"></I></CODE> button
+                again.
+            </LI>
+        </OL>
+        <P></P>
+        <H5>System wide templates</H5>
+
+        <P>It is possible to make a template system-wide, so that everyone will see that
+            template, but no one other than the creator can edit it.</P>
+        <!-- the only way to do it is to change the database row of that template and switch a boolean field-->
+
+        <H4>Saving</H4>
+
+        <P>Once you save the call, you will be taken to the <SPAN
+                class="text-success">Edit</SPAN> page, and the call will be live on
+            the database.</P></DIV>
+</SECTION>
+<SECTION id="edit">
+    <DIV class="page-header">
+        <H1>Editing an existing call</H1>
+
+        <P>See Creating a new Call section. Editing functions are same as creating
+            functions.</P>
+
+        <P>Only you and the Administrator User can edit your call. Other people can
+            comment on it (see <SPAN class="text-success">Viewing</SPAN>).</P>
+
+        <DIV class="alert alert-info"> All of the edits of a call are saved in
+            the system. We keep all versions of all edits. It is potentially
+            possible to recover them. If you want a call back, you need to buy a lot of doughnuts, and not just
+            cheap ones, for everybody.
+        </DIV>
+        <H4>Deleting a Call</H4>
+
+        <P>If you accidently entered a call more than once or for some other reason need to remove a call, you
+            may delete it. No one will ask questions. Although, if you delete all
+            of your calls, someone might.</P>
+
+        <DIV class="alert alert-info"> In reality an call is never deleted.
+            We tell everyone that it is deleted. But in reality it's not. See the above info box.
+        </DIV>
+    </DIV>
+</SECTION>
+<SECTION id="view">
+    <DIV class="page-header">
+        <H1>Viewing calls</H1>
+
+        <P>From <SPAN class="text-success">Edit</SPAN> page, <SPAN
+                class="text-success">List</SPAN> page, <SPAN class="text-success">Home</SPAN>
+            page you may view your or others calls.</P>
+
+        <P>There are some features in this view:</P>
+        <H5>Flag this record</H5>
+
+        <P>If you think that you need to follow up with this call, you may flag it. Only
+            you can see and flag your own calls. It's only for you. Once you flag
+            your call, it will appear on your home screen under a special tab, and
+            also there will be a flag next to it on your home screen.</P>
+        <H5>Like this record</H5>
+
+        <P>You can "Like" any call you view that you find particularly
+            helpful. Unlike Facebook, you may
+            like it more than once. The rationale behind this is that you may come
+            back to this record more than once throughout the years, and it may
+            be helpful for you more than once.</P>
+        <H5>Add a new comment</H5>
+
+        <P>Anyone using the system can add a comment to any call record. You may delete
+            and edit your own comments. When the call is printed, the comments
+            are printed as well.</P>
+        <H5>Print this record</H5>
+
+        <P>Printed calls are not everything you see on the screen. Some screen elements
+            are hidden. To print more than one call see <SPAN class="text-success">Search</SPAN>.</P></DIV>
+</SECTION>
+<SECTION
+        id="search">
+    <DIV class="page-header">
+        <H1>Searching</H1>
+
+        <P>Searching can be broken down into 4 different types of operations:
+        <UL>
+            <LI>Where you search
+                <UL>
+                    <LI>Meta-data of the call record. This includes all of the fields other than
+                        <SPAN class="text-success">Relevant Information</SPAN>, <SPAN class="text-success">Action
+    Taken</SPAN> or <SPAN class="text-success">Follow Up</SPAN></LI>
+                    <LI>Body of the call record. This includes only the <SPAN class="text-success">Relevant
+    Information</SPAN>, <SPAN class="text-success">Action Taken</SPAN> and <SPAN
+                            class="text-success">Follow Up</SPAN></LI>
+                    <LI>All records. Naturally if you don't enter any keywords to the <SPAN
+                            class="text-success">Search Query</SPAN> field, all
+                        results are returned.
+                    </LI>
+                </UL>
+            </LI>
+            <LI>How you search
+                <UL>
+                    <LI>Simple. Default mode is simple. Just enter each keyword on the search
+                        query separated by spaces. System will search and
+                        return the results that contain all of the search terms. No operators are
+                        allowed.
+                    </LI>
+                    <LI>Advanced. If you select <SPAN class="text-success">advanced query</SPAN>
+                        checkbox, the search query becomes a boolean search
+                        query. Boolean operations are AND, OR, NOT and you can group by
+                        parenthesis. For AND use <CODE>&amp;</CODE> character, for OR use
+                        <CODE>|</CODE> character, for NOT use <CODE>!</CODE>
+                        character. AND operation is not assumed by default (this means you can't do
+                        a query like <CODE>term ! term2</CODE>, you must type
+                        <CODE>term &amp; ! term2</CODE> which means search
+                        records that contain term but not term2.). You can use parenthesis
+                        <CODE>(</CODE> and <CODE>)</CODE> for grouping. Some
+                        examples are:
+                        <UL>
+                            <LI>Search term and term2: <CODE>term &amp; term2</CODE></LI>
+                            <LI>Search term and also either one of term2 or term3: <CODE>term &amp;
+                                (term2 | term3)</CODE></LI>
+                            <LI><CODE>((term &amp; term2) | (term3 &amp; term4) &amp; ! term5) |
+                                term6</CODE> is possible, I can't explain
+                                what this means.
+                            </LI>
+                        </UL>
+                        Good luck!
+                    </LI>
+                </UL>
+            </LI>
+            <LI>How you limit the search
+                <UL>
+                    <LI>Of course the most obvious way to limit results are using a <SPAN class="text-success">Search
+    query</SPAN></LI>
+                    <LI>There are some fields that are on meta-data section that you can further
+                        limit your search results. We don't support multiple
+                        selections, sorry!
+                        <UL>
+                            <LI>Hospital</LI>
+                            <LI>Resident Name</LI>
+                            <LI>Classification</LI>
+                            <LI>Date Range: You don't have to fill both fields. The first field is
+                                <SPAN class="text-success">from</SPAN> defining the lower bound, the
+                                second field is <SPAN class="text-success">to</SPAN> defining the upper
+                                bound. So it's possible to search for all
+                                entries up to 2012, or all entries after March 4th.
+                            </LI>
+                            <LI>Recent: A quick way to specify recent time span.</LI>
+                        </UL>
+                    </LI>
+                </UL>
+            </LI>
+            <LI>How you sort
+                <P style="margin-left: 20px;">The default sorting tries to sort in a good way
+                    with respect to the search options you
+                    have selected. But you may overwrite the search results' sorting.</P></LI>
+        </UL>
+        <P></P>
+
+        <H3>Printing search results</H3>
+
+        <P>If you need to print multiple records, when search returns its results,
+            there will be a <CODE>Print these records</CODE> button. Clicking will
+            take you to a new page that renders all of the search results ready to
+            be printed.</P></DIV>
+</SECTION>
+<SECTION id="list">
+    <DIV class="page-header">
+        <H1>Listing calls</H1>
+
+        <P>The <SPAN class="text-success">List</SPAN> page lists all call entries in the
+            system, sorted by their <SPAN class="text-success">Call date</SPAN> and <SPAN
+                    class="text-success">Call time</SPAN>.</P>
+        <H4>Comments</H4>
+
+        <P>If there are comments in a call, the column marked by <I
+                class="icon-comment"></I> shows the number of comments for that
+            call.</P>
+        <H4>Edit</H4>
+
+        <P>If you are the owner for that call listed, there will be a edit
+            link.</P></DIV>
+</SECTION>
+<SECTION id="print">
+    <DIV class="page-header">
+        <H1>Printing</H1>
+
+        <P>You may print calls several ways:</P>
+        <H4>Printing a single call</H4>
+
+        <P>While viewing the call, there is a <CODE>Print this record</CODE> button.
+            Clicking that will bring print dialog. You may also just use your
+            browsers Print option.</P>
+        <H4>Printing multiple calls</H4>
+
+        <P>The easiest way to print multiple calls is by doing a search.</P>
+        <H5>I would like to print all of my call from my on-call week that
+            happened over the last 4 days.</H5>
+
+        <P>Go to <SPAN class="text-success">Search</SPAN>, select your username from
+            <SPAN class="text-success">Residents</SPAN>, enter 4 and select
+            "Days" from <SPAN class="text-success">Recent</SPAN> section, select "By Id:
+            smallest first" from <SPAN class="text-success">Sort by</SPAN>
+            section. Do the search, click on <CODE>Print these records</CODE>
+            button. </P>
+
+        <DIV class="alert alert-info"> You may bookmark a search result.
+            Bookmarking a search result that states Recent 5 Days will dynamically
+            return newest results that are matching last 5 days.
+        </DIV>
+    </DIV>
+</SECTION>
+<SECTION id="home">
+    <DIV class="page-header">
+        <H1>Home Screen</H1>
+
+        <P>The Home screen consists of 3 tabs. All lists on this screen are
+            limited to 100 results.</P>
+        <H4>Latest calls</H4>
+
+        <P>Your calls are sorted by the most recently updated first. This view allows you to
+            quickly find and continue a call record you were working on.</P>
+        <H4>Flagged calls</H4>
+
+        <P>Once you flag a call at the Edit page, that call shows up in this tab. You
+            can view / edit that record and remove the flag.</P>
+        <H4>Commented calls</H4>
+
+        <P>All calls that are commented by anyone are listed here, sorted by
+            the most recent
+            comment on top.</P></DIV>
+</SECTION>
+<SECTION id="tags">
+    <DIV class="page-header">
+        <H1>Tags</H1>
+
+        <P>Power users can create new tags, and regular users (you!) can view them. Each tag
+            has its own page that shows call records that are tagged with that
+            tag. If you would like a new tag, let your Power User (chief resident)
+            know.</P></DIV>
+</SECTION>
+<SECTION id="other">
+    <DIV class="page-header">
+        <H1>Other features</H1>
+        <H4>Calls cannot be edited after some period</H4>
+
+        <P>After 90 days, editing a call is locked. You can only comment on a call.</P>
+        <H4>Stale data</H4>
+
+        <P>Call records older than 3 years are considered stale. Viewing these records
+            is allowed, but you will see a warning.
+        <H4>Bookmarking</H4>
+
+        <P>You can bookmark, or share the URL of every page you see in this system.</P>
+        <H4>Tour</H4>
+
+        <P>Some pages contain a Tour feature to provide a quick overview - try it
+            out!</P></DIV>
+</SECTION>
+
+</div>
+<!--/span-->
+</div>
+{% endblock %}

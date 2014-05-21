@@ -1,0 +1,446 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+    <style>
+        .handsontable .htDimmed
+        {
+            font-style: normal;
+            color: black;
+        }
+        .vlabel {
+
+            min-width: 150px;
+            display: inline-block;
+            text-align: right;
+        }
+        .vvalue {
+            font-weight: 600;
+        }
+        h3, h4 {
+            margin: 2px 0;
+        }
+        .row-fluid [class*="span"] {
+            min-height: inherit !important;
+        }
+        hr {
+            margin: 2px 0;
+            height: 3px;
+        }
+        #create-comment-box
+        {
+            margin: 5px;
+        }
+        .update {
+            font-size: 0.9em;
+            color: gray;
+            margin-right: 5px;
+        }
+        .owner {
+            margin-right: 5px;
+        }
+        .well
+        {
+            margin:2px 0;
+        }
+        .space {
+            margin: 0 3px;
+        }
+    </style>
+    <script>
+        function load_allcomments()
+        {
+
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: "{{ url_for("ajax") }}?action=getcomments&key={{ record.id }}",
+                success: function(json) {
+                    var comments = $.parseJSON(json)
+                    $('#comments').empty();
+                    $.each(comments, function(index){
+                        $('#comments').append(create_comment(this.id, this.blob, this.updated, this.username));
+                    });
+                }
+           });
+        }
+
+        function delete_comment(id)
+        {
+           $.ajax({
+               type: "GET",
+               cache: false,
+               url: "{{ url_for("ajax") }}?action=deletecomment&comment_id=" + id,
+               success: function() {
+                   load_allcomments();
+               }
+           });
+        }
+
+        function save_comment(id)
+        {
+            $('#savecommentbutton-' + id).attr('disabled', true);
+            var data = $("#saveform-" + id).serialize();
+            $.ajax({
+               type: "POST",
+               url: "{{ url_for("ajax") }}?action=savecomment&comment_id=" + id,
+               data: data,
+               success: function() {
+                   load_allcomments();
+               }
+           });
+        }
+        function edit_comment(id)
+        {
+            comment = $('#comment-' + id + ' span').html();
+            comment = comment.replace(/<br>/g, "\n");
+            $('#comment-' + id).empty();
+            $('#comment-' + id).append('<form id="saveform-' + id + '"><div style="display: block;"><textarea style="width: 100%; -mox-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing: border-box;" name="comment" rows="5" id="edit-' + id +'">' + comment + '</textarea></div>'
+                    + '<br /><a class="btn btn-primary" id="savecommentbutton-' + id + '" onclick="save_comment(' + id + ')"> save comment </a>'
+                    + '</form>');
+        }
+
+        function create_comment(id, blob, updated, owner)
+        {
+            var sessionuser = '{% if 'user_username' in session %}{{ session['user_username'] }}{% endif %}';
+            var sessionuserauthlevel = {% if 'user_username' in session %}{{ session['user_auth_level'] }}{% endif %};
+            blob = blob.replace(/\r/g, "").replace(/\n/g, "<br />");
+
+            var html = '<div id="comment-' + id + '" class="well well-small"><span>' + blob + '</span></div>'
+                                    + '<div style="float:right;" class="clearfix">'
+                                    + '<span class="update">' + updated + '</span>'
+                                    + '<span class="owner">' + owner + '</span>';
+            if (sessionuser == owner || sessionuserauthlevel >= 10000) // administrator
+            {
+                html += '<a class="pointer confirm" title="delete" onclick="$(\'#deleteconfirm-' + id + '\').toggle();"><i class="space icon-remove"></i></a>'
+                                    + '<a class="pointer" style="display:none;" id="deleteconfirm-' + id + '" onclick="delete_comment(' + id + ')">Yes, delete.</a>'
+                                    + '<a class="pointer" title="edit" onclick="edit_comment(' + id + ')"><i class="space icon-edit"></i></a>';
+            }
+            html += '</div>'
+                    + '<div style="clear:both">';
+            return $(html);
+        }
+
+        function like()
+        {
+           $.ajax({
+               type: "GET",
+               cache: false,
+               url: "{{ url_for('ajax') }}?action=like&id={{ record.id }}",
+               success: function(data) {
+                    $("#totallikescount").html(data);
+               }
+           });
+        }
+
+
+        //   TAGS
+
+        var tagslist = new Array();
+        var tagsource = ["{{ tagsource|join('\", \"')|safe }}"];
+        var tagsourcecompare = ["{{ tagsource|join('\", \"')|lower|safe }}"];
+
+
+        function handleTagKeyPress(event){
+             if (event.keyCode==13)
+             {
+                 var tagcomp = $('#tag').val().toLowerCase();
+                 if ($.inArray(tagcomp, tagsourcecompare) != -1)
+                 {
+                     var tag = tagsource[$.inArray(tagcomp, tagsourcecompare)];
+                     if ($.inArray(tag, tagslist) == -1)
+                     {
+
+                         createTag(tag);
+                         addToTagsList(tag);
+                         saveTagsChanges(tag, 1);
+                     }
+                 }
+                 $('#tag').val('');
+                return false;
+             }
+        }
+
+        function removeFromTagsList(removeItem)
+        {
+            removeItem = removeItem.trim();
+            tagslist = $.grep(tagslist, function(value) {
+                return value != removeItem;
+            });
+            $('#tagsform').val(tagslist);
+            saveTagsChanges(removeItem, 0);
+        }
+
+        function addToTagsList(tag)
+        {
+            tagslist.push(tag);
+            $('#tagsform').val(tagslist);
+        }
+
+        function saveTagsChanges(tag, added)
+        {
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: "{{ url_for('ajax') }}?action=saveTagChange&id={{ record.id }}&tag=" + tag + "&added=" + added,
+                success: function(data) {
+                    $('#savednotify').show(0, function() { $('#savednotify').fadeOut(2000); });
+                }
+            });
+        }
+
+        function createTag(tag){
+            $('#tagcloud').append($("<div class='hashtag'>" + tag + " <i class='icon-remove-circle icon-white' style='cursor: pointer;'></i></div>"));
+
+            $('.hashtag i').click(function(){
+                removeFromTagsList($($(this).parent()).text());
+                $(this).parent().remove();
+            }).mouseover(function(){
+                $(this).removeClass('icon-white');
+            }).mouseout(function(){
+                $(this).addClass('icon-white');
+            });
+        }
+
+        function loadTagsForm() {
+            $.each($('#tagsform').val().split(','), function(index){
+                if (this.length)
+                {
+                    createTag(this.valueOf());
+                    addToTagsList(this.valueOf());
+                }
+            });
+        }
+
+
+        $(document).ready(function() {
+            $('#new-comment').click(function(){
+                $('#submit-comment').attr('disabled', false);
+                $('#comment-box').val('');
+                $('#create-comment-box').show();
+                $('#comment-box').focus();
+            });
+            $('#submit-comment').click(function() {
+                $('#submit-comment').attr('disabled', true);
+                var data = $("#comment-form").serialize();
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url_for('ajax') }}?action=addcomment&key={{ record.id }}",
+                    data: data,
+                    success: function(json) {
+                        $('#create-comment-box').hide();
+                        var comments = $.parseJSON(json)
+                        $('#comments').empty();
+                        $.each(comments, function(index){
+                            $('#comments').append(create_comment(this.id, this.blob, this.updated, this.username));
+                        });
+                    }
+                });
+            });
+            loadTagsForm();
+
+            $('#tag').typeahead({
+                source: tagsource
+            });
+            $('#tag').keypress(handleTagKeyPress);
+
+            if ("{{ record.call_classification}}" == "1:1 mix")
+            {
+                var tabular_data = '{{ record.tabular_data|safe }}';
+                var data = [];
+                if (tabular_data.length > 0) {
+                    data = $.parseJSON(tabular_data);
+                }
+
+                $('#tabular_data_table').handsontable({
+                   data: data,
+                   colHeaders: false,
+                   rowHeaders: false,
+                   minSpareRows: 0,
+                   minSpareCols: 0,
+                   readOnly: true
+                });
+            }
+            load_allcomments();
+        });
+
+    </script>
+  <div class="row-fluid">
+    <div class="span12">
+        {% for error in errors %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ error }}
+            </div>
+        {% endfor %}
+    </div>
+  </div>
+  <h3 class="text-center only-show-at-print">University of Washington</h3>
+  <h4 class="text-center only-show-at-print">Department of Laboratory Medicine</h4>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Call Id:</span>
+          <span class="vvalue">{{ record.id }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Hospital:</span>
+          <span class="vvalue">{{ record.pt_hospital }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Resident on Call:</span>
+          <span class="vvalue">{{ record.username }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Call Classification:</span>
+          <span class="vvalue">{{ record.call_classification }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Date:</span>
+          <span class="vvalue">{{ record.date_of_call }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Time:</span>
+          <span class="vvalue">{{ record.time_of_call }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Day of Week:</span>
+          <span class="vvalue">{{ record.day_of_week }}</span>
+      </div>
+      <div class="span6">
+      </div>
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span6">
+          <div>
+              <span class="vlabel">From:</span>
+              <span class="vvalue">{{ record.from_title }} {{ record.from_who }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Service/Floor:</span>
+              <span class="vvalue">{{ record.from_service_floor }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Phone #:</span>
+              <span class="vvalue">{{ record.telephone_number }}</span>
+          </div>
+      </div>
+      <div class="span6">
+          <div>
+              <span class="vlabel">Patient Name:</span>
+              <span class="vvalue phi">{{ record.pt_name }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Hospital #:</span>
+              <span class="vvalue phi">{{ record.pt_hosp_number }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Location of Patient:</span>
+              <span class="vvalue">{{ record.pt_location }}</span>
+          </div>
+      </div>
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span6">
+          <div>
+              <span class="vlabel">Specific Request:</span>
+              <span class="vvalue">{{ record.specific_request }}</span>
+          </div>
+          <div>
+              <span class="vlabel"><a style="color:#333333;" href="https://web.labmed.washington.edu/lmr/Phone%20list#Faculty_Contacts" target="_blank">Lab. Med. faculty/staff</a> contacted:</span>
+              <span class="vvalue">{{ record.staff_contacted}}</span>
+          </div>
+      </div>
+      <div class="span6">
+          <div>
+              <span class="vlabel">Physician name:</span>
+              <span class="vvalue">{{ record.physician_name }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Physician phone #:</span>
+              <span class="vvalue">{{ record.physician_telephone_number }}</span>
+          </div>
+      </div>
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span9">
+          <h4>Relevant Information</h4>
+          <p>{{ record.relevant_info|safe  }}</p>
+          <div id="tabular_data">
+              <div id="tabular_data_table" class="handsontable" style="width: 100%"></div>
+          </div>
+          <h4>Action Taken</h4>
+          <p>{{ record.action_taken|safe  }}</p>
+          <h4>Follow Up</h4>
+          <p>{{ record.follow_up|safe  }}</p>
+      </div>
+
+      <div class="span3">
+          {% if ('user_id' in session and record.user_id == session['user_id']) or session['user_auth_level'] >= 10000 %}
+          <div class="btn-group hideprint">
+             <button id="flagrecord" class="btn {% if record['flag']==1 %} btn-success{% elif record['flag']==2 %} btn-warning{% elif record['flag']==4 %} btn-danger{% elif record['flag']==8 %} btn-info{% endif %}" style="margin: 10px 0 10px 0"
+                title="Flagging is for your own use, only you can flag and will see your own flags."
+                data-flag="{% if record['flag'] %}{{record['flag']}}{% else %}1{% endif %}"
+                onclick="flag({{ record['id'] }});">
+                   <i class="icon-flag"></i> <span>{% if record['flag'] %}This record is flagged{% else %}Flag this record{% endif %}</span>
+             </button>
+             <button class="btn dropdown-toggle" data-toggle="dropdown">
+                 <span class="caret"></span>
+             </button>
+             <ul class="dropdown-menu">
+                 <li><a style="cursor: pointer;" onclick="flag({{ record['id'] }}, 1);"><span class="label label-success" style="width: 100%;"><i class="icon-flag"></i> Green Flag</span></a></li>
+                 <li><a style="cursor: pointer;" onclick="flag({{ record['id'] }}, 2);"><span class="label label-warning" style="width: 100%;"><i class="icon-flag"></i> Yellow Flag</span></a></li>
+                 <li><a style="cursor: pointer;" onclick="flag({{ record['id'] }}, 4);"><span class="label label-important" style="width: 100%;"><i class="icon-flag"></i> Red Flag</span></a></li>
+                 <li><a style="cursor: pointer;" onclick="flag({{ record['id'] }}, 8);"><span class="label label-info" style="width: 100%;"><i class="icon-flag"></i> Blue Flag</span></a></li>
+             </ul>
+          </div>
+          {% endif %}
+          <a class="btn hideprint" style="margin: 10px 0 10px 0"
+             title="You may like it more than once, but you may not undo your like"
+             onclick="like();">
+              <i class="icon-thumbs-up"></i> Like this record
+          </a>
+          <div style="margin-bottom: 20px" class="hideprint">Total likes: <span id="totallikescount">{{ record.liked }}</span></div>
+          <div class="on-call-form on-call-form-tags hideprint">
+              <input name="tag" id="tag" type="text" autocomplete="off" style="margin-top: 10px; width:100%">
+              <input type="hidden" name="tagsform" id="tagsform" value="{{ record.tagsform }}" />
+          </div>
+          <div id="tagcloud"></div>
+      </div>
+
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span12">
+          <a id='new-comment' class="btn btn-info hideprint">Add a new comment</a>
+          {% if ('user_id' in session and record.user_id == session['user_id']) or session['user_auth_level'] >= 10000 %}<a id='edit-call' href="{{ url_for("edit", id = record.id) }}" class="btn hideprint">Edit this record</a> {% endif %}
+          <div class="btn-group">
+              <button class="btn hideprint" onclick="window.print();">Print this record</button>
+              <button class="btn hideprint dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                    <a onclick="$('.phi').addClass('phi-apply');window.print();$('.phi').removeClass('phi-apply');">Print this record without patient info</a>
+                </li>
+              </ul>
+          </div>
+
+
+          <div id='create-comment-box' style="display: none;">
+              <form id='comment-form'>
+                  <textarea id='comment-box' name="comment" style="width:100%;" placeholder="comment"></textarea>
+                  <a id='submit-comment' class="btn btn-primary">Submit</a>
+              </form>
+          </div>
+          <div id='comments'></div>
+      </div>
+  </div>
+  <div id="savednotify">saved</div>
+  {% endblock %}

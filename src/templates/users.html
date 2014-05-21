@@ -1,0 +1,71 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.tr-link').click(function() {
+        var href = $(this).find("a").attr("href");
+        if(href) {
+            window.location = href;
+        }
+    });
+    initTrip();
+});
+</script>
+  <div class="row-fluid">
+    <div class="span12">
+      <h2><span id="header-users">Users</span></h2>
+      <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Full name</th>
+          <th>Email</th>
+          <th>Pager</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in activeusers  %}
+        <tr class="tr-link">
+          <td><a href="{{ url_for('user', username=row.username) }}">{{ row.username }}</td>
+          <td>{{ row.fullname}}</td>
+          <td>{{ row.email}}</td>
+          <td>{{ row.pager}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <a class="btn btn-small" id="hide-users-button" onclick="$('#inactive').toggle()">Show/hide inactive users</a>
+      <div id="inactive" style="display: none;">
+          <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Full name</th>
+              <th>Email</th>
+              <th>Pager</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in passiveusers  %}
+            <tr class="tr-link">
+              <td><a href="{{ url_for('user', username=row.username) }}">{{ row.username }}</td>
+              <td>{{ row.fullname}}</td>
+              <td>{{ row.email}}</td>
+              <td>{{ row.pager}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+    <!--/span--> 
+  </div>
+  {% if session['user_auth_level'] >= 1000 %}{# power user #}
+  <hr />
+  <div class="row-fluid">
+      <div class="span12">
+          <a id='new-user' class="btn btn-info" href="{{ url_for('new_user') }}">Create a new user</a>
+      </div>
+  </div>
+  {% endif %}
+{% endblock %}

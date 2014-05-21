@@ -1,0 +1,907 @@
+{% extends "layout.html" %}
+{% block body %}
+<script>
+
+    function resettemplatebuttons() {
+        $("#template_btn_add").prop('disabled', true);
+        $("#template_btn_delete").prop('disabled', true);
+        $("#template_btn_save").prop('disabled', true);
+        $('#template_btn_save').data('state', '');
+    }
+    function opentemplatemodal(name) {
+        $('#templatemodal').modal();
+        $('#template_btn_inserttemplate').data('textareaid', name);
+        inittemplatemanager();
+    }
+    var templatesdropdowninitialized = false;
+    function templatesdropdowninit() {
+        if (templatesdropdowninitialized)
+            return;
+        $.ajax({
+             type: "GET",
+             url: "{{ url_for("ajax") }}?action=getresidentsstarredtemplates",
+             cache: false,
+             success: function(json) {
+                 var templatesdata = $.parseJSON(json);
+                 $('.template-dropdown-menu').each(function(index){
+                     $(this).find('.generated').remove();
+                 });
+                 $('.template-dropdown-menu').each(function(index){
+                     var menu = this;
+                     var textareaid = $(this).data('textarea-id');
+                     for (var i = templatesdata.length - 1; i >= 0; i--)
+                     {
+                         var li = $('<li class="generated"><a onclick="insertstartemplate(this, \'' + textareaid + '\');">' + templatesdata[i].title + '</a></li>');
+                         li.data('blob', templatesdata[i].blob);
+                         $(menu).prepend(li);
+                     }
+                 });
+                 templatesdropdowninitialized = true;
+             }
+        });
+    }
+
+    function insertstartemplate(item, textareaid)
+    {
+        var blob = $(item).parent().data('blob');
+        var start = $('#' + textareaid).caret().start;
+        var val = $('#' + textareaid).val();
+        var half1 = val.substr(0,start);
+        var half2 = val.substr(start);
+        $('#' + textareaid).val(half1 + blob + half2);
+        //$('#' + textareaid).val($('#' + textareaid).val() + blob);
+    }
+
+    function startemplate(item)
+    {
+        var template = $(item).parent().parent();
+        var star = $(item);
+        var id = $(template).data('id');
+        var has = $(star).hasClass('btn-success');
+        $.ajax({
+             type: "POST",
+             url: "{{ url_for("ajax") }}?action=startemplate",
+             data: "id=" + id,
+             success: function(json) {
+                 data = $.parseJSON(json);
+                 if (data == 1)
+                    star.addClass('btn-success');
+                 else
+                    star.removeClass('btn-success');
+             }
+        });
+        templatesdropdowninitialized = false;
+    }
+    function selecttemplate(item)
+    {
+        resettemplatebuttons();
+        var template = $(item).parent().parent();
+        $('#templatecontents').val($(template).data('blob'));
+        $('#templatetitle').val($(template).data('title'));
+        if (!$(template).data('department_template'))
+        {
+            $('#template_btn_save').prop('disabled', false);
+            $('#template_btn_delete').prop('disabled', false);
+        }
+        $('#template_btn_save').data('state', $(template).data('id'));
+    }
+    function newtemplate(item)
+    {
+        resettemplatebuttons();
+        $('#templatecontents').html('');
+        $('#templatetitle').val('');
+        $('#template_btn_save').prop('disabled', false);
+        $('#template_btn_save').data('state', 'new');
+        templatesdropdowninitialized = false;
+    }
+
+    function createtemplatelistitem(id, title, blob, department_template, starred)
+    {
+        var template = $('.templatelistitem_template').clone();
+        template.removeClass('templatelistitem_template');
+        template.css('display','');
+        template.find('.templatelistitem_name').text(title);
+        if (starred) template.find('.templatelistitem_star').addClass('btn-success');
+        template.data('blob', blob);
+        template.data('title', title);
+        template.data('id', id);
+        template.data('starred', starred);
+        template.data('department_template', department_template);
+        return template;
+    }
+
+    function deletebuttonclick()
+    {
+        $('#confirmname').html($('#templatetitle').val());
+        $('#confirm').modal();
+    }
+
+    function deleteconfirmbuttonclick()
+    {
+        id = $('#template_btn_save').data('state');
+        $.ajax({
+             type: "POST",
+             url: "{{ url_for("ajax") }}?action=deletetemplate",
+             data: "id=" + id,
+             success: function(json) {
+                 if (json != '0')
+                 {
+                     $('#templatelist').children().each(function(index){
+                        if ($(this).data('id') == id)
+                        {
+                            $(this).remove();
+                        }
+                     });
+                     $('#templatecontents').val('');
+                     $('#templatetitle').val('');
+                     resettemplatebuttons();
+                 }
+             }
+        });
+        templatesdropdowninitialized = false;
+    }
+
+    function savebuttonclick()
+    {
+        if ($('#template_btn_save').data('state') == 'new')
+        {
+            var data = $('#templateform').serialize();
+            $.ajax({
+                 type: "POST",
+                 url: "{{ url_for("ajax") }}?action=addtemplate",
+                 data: data,
+                 success: function(json) {
+                     if (json != '0')
+                     {
+                         var template = $.parseJSON(json);
+                         $('#templatelist').prepend(
+                                createtemplatelistitem(template.id, template.title, template.blob, template.department_template));
+                         $('#template_btn_save').data('state', template.id);
+                         $('#template_btn_delete').prop('disabled', false);
+                     }
+                 }
+            });
+        }
+        else
+        {
+             var data = $('#templateform').serialize();
+             data = data + "&id=" + $('#template_btn_save').data('state');
+             $.ajax({
+                 type: "POST",
+                 url: "{{ url_for("ajax") }}?action=settemplate",
+                 data: data,
+                 success: function(json) {
+                     var template = $.parseJSON(json);
+                     $('#templatelist').children().each(function(index){
+                        if ($(this).data('id') == template.id)
+                        {
+                            $(this).replaceWith(
+                                    createtemplatelistitem(template.id, template.title, template.blob, template.department_template));
+                        }
+                     });
+
+                 }
+            });
+        }
+        templatesdropdowninitialized = false;
+    }
+
+    function inserttemplate(item, textareaid)
+    {
+        var textareaid = $('#template_btn_inserttemplate').data('textareaid');
+        $('#' + textareaid).val($('#' + textareaid).val() + $('#templatecontents').val());
+        $('#templatemodal').modal('hide');
+    }
+
+    function inittemplatemanager()
+    {
+        resettemplatebuttons();
+
+        $.ajax({
+             type: "GET",
+             cache: false,
+             url: "{{ url_for("ajax") }}?action=gettemplatelist",
+             success: function(json) {
+                 if (json != '0')
+                 {
+                     var templates = $.parseJSON(json)
+                     $('#templatelist').empty();
+                     templates.forEach(function(item){
+                         $('#templatelist').append(createtemplatelistitem(item.id, item.title, item.blob, item.department_template, item.starred));
+                     });
+                 }
+             }
+        });
+    }
+
+    /// AUTOSAVE
+
+    var stateOfTheForm;
+    function startSavingForm() {
+        stateOfTheForm =  $('#newform-{{ form['id'] }}').serialize();
+        setInterval("saveAutosaveForm()", 15000);
+    }
+
+    function saveAutosaveForm() {
+        var data = $('#newform-{{ form['id'] }}').serialize();
+        if (data != stateOfTheForm)
+        {
+            stateOfTheForm = data;
+            $.ajax({
+                 type: "POST",
+                 {% if form['id'] %}
+                 url: "{{ url_for("ajax") }}?action=setautosaveform&key={{ form['id'] }}",
+                 {% else %}
+                 url: "{{ url_for("ajax") }}?action=setautosaveform&key={{ session['user_username'] }}",
+                 {% endif %}
+                 data: data,
+                 success: function(msg) {
+                     $('#savednotify').show(0, function() { $('#savednotify').fadeOut(2000); });
+                 }
+            });
+        }
+    }
+
+    function loadAutosaveForm() {
+        $.ajax({
+             async: false, // we don't want to return as this is initializing
+             type: "GET",
+             cache: false,
+             {% if form['id'] %}
+             url: "{{ url_for("ajax") }}?action=getautosaveform&key={{ form['id'] }}",
+             {% else %}
+             url: "{{ url_for("ajax") }}?action=getautosaveform&key={{ session['user_username'] }}",
+             {% endif %}
+             success: function(json) {
+                 if (json != '0')
+                 {
+                     var form = $.parseJSON(json)
+                    $('#newform-{{ form['id'] }}').deserialize(form);
+                    $('#restore_alert').show();
+                 }
+                 else
+                 {
+                     startSavingForm();
+                 }
+             }
+        });
+    }
+
+    function deleteAutosaveForm() {
+        $.ajax({
+             type: "GET",
+             cache: false,
+             {% if form['id'] %}
+             url: "{{ url_for("ajax") }}?action=deleteautosaveform&key={{ form['id'] }}",
+             {% else %}
+             url: "{{ url_for("ajax") }}?action=deleteautosaveform&key={{ session['user_username'] }}",
+             {% endif %}
+             success: function(form) {
+                location.reload();
+             }
+        });
+    }
+
+    tagslist = new Array();
+    var tagsource = ["{{ tagsource|join('\", \"')|safe }}"];
+    var tagsourcecompare = ["{{ tagsource|join('\", \"')|lower|safe }}"];
+
+    function removeFromTagsList(removeItem)
+    {
+        removeItem = removeItem.trim();
+        tagslist = $.grep(tagslist, function(value) {
+            return value != removeItem;
+        });
+        $('#tagsform').val(tagslist);
+    }
+
+    function addToTagsList(tag)
+    {
+        tagslist.push(tag);
+        $('#tagsform').val(tagslist);
+    }
+
+    function createTag(tag){
+        $('#tagcloud').append($("<div class='hashtag'>" + tag + " <i class='icon-remove-circle icon-white' style='cursor: pointer;'></i></div>"));
+
+        $('.hashtag i').click(function(){
+            removeFromTagsList($($(this).parent()).text());
+            $(this).parent().remove();
+        }).mouseover(function(){
+            $(this).removeClass('icon-white');
+        }).mouseout(function(){
+            $(this).addClass('icon-white');
+        });
+    }
+    function loadTagsForm() {
+        $.each($('#tagsform').val().split(','), function(index){
+            if (this.length)
+            {
+                createTag(this);
+                addToTagsList(this);
+            }
+        });
+    }
+
+    function handleTagKeyPress(event){
+         if (event.keyCode==13)
+         {
+             var tag = $('#tag').val().toLowerCase();
+             if ($.inArray(tag, tagslist) == -1 && $.inArray(tag, tagsourcecompare) != -1)
+             {
+				 tag = tagsource[$.inArray(tag, tagsourcecompare)];
+                 createTag(tag);
+                 addToTagsList(tag);
+             }
+
+             $('#tag').val('');
+            return false;
+         }
+    }
+    var lastLoad = "";
+    function populatePtHospNumber() {
+        var number = $('#pt_hosp_number').val();
+        if (number != lastLoad)
+        {
+            $.ajax({
+                 type: "GET",
+                 cache: false,
+                 url: "{{ url_for('ajax') }}?action=searchforpatientnumber&key=" + number,
+                 success: function(json) {
+                     var calls = $.parseJSON(json);
+                     $("#pt_hosp_number_other_calls").empty();
+                     $("#pt_hosp_number_other_calls").append($('<span>Calls related to this patient: </span>'));
+                     $.each(calls, function(index){
+                        $("#pt_hosp_number_other_calls").append($('<a style="margin-right: 5px;" href="{{ url_for("show") }}?id='
+                                + this['id'] + '" target="_blank" title="'
+                                + this['specific_request'] + '">' + this['id'] + '</a>'));
+                     });
+
+                 }
+            });
+        }
+    }
+
+    function verify_delete_record()
+    {
+        $('#deleterecordconfirm').remove();
+        $('#deleterecord').after($('<a id="deleterecordconfirm" style="margin-left: 5px;" class="pointer" onclick="delete_record();">Yes, please.</a>'))
+    }
+
+
+    function delete_record()
+    {
+        var id = $('#id').val();
+        $.ajax({
+             type: "GET",
+             cache: false,
+             url: "{{ url_for('ajax') }}?action=deletecalllog&key=" + id,
+             success: function(data) {
+                window.location.replace('{{ url_for("home") }}');
+             }
+        });
+    }
+
+
+	$(document).ready(function() {
+        $("#pt_hospital").select2();
+        $("#call_classification").select2().on("change", function(e) {
+            if (e.val=="1:1 mix")
+            {
+                $('#tabular_info_group').show();
+            }
+            else
+            {
+                $('#tabular_info_group').hide();
+            }
+        });
+        $("#from_title").select2();
+        var nowTemp = new Date();
+        var now = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
+        var today = new Date();
+        var t = ((today.getMonth() + 1 < 10) ? "0" : "") + (today.getMonth() + 1)
+                + "/" + ((today.getDate() < 10) ? "0" : "") + today.getDate() + "/" + today.getFullYear();
+        if (!$('#date_of_call').val()) { $('#date_of_call').val(t); }
+        $('#date_of_call').datepicker();
+        $('#time_of_call').timepicker({
+            minuteStep: 15,
+            template: false,
+            showSeconds: false,
+            showMeridian: false
+        });
+
+        $('#tag').typeahead({
+            source: tagsource
+        });
+        $('#tag').keypress(handleTagKeyPress);
+        $("#pt_hosp_number").blur(populatePtHospNumber);
+        populatePtHospNumber();
+        {% if form %}
+            loadAutosaveForm();
+            loadTagsForm();
+        {% endif %}
+        initTrip();
+        var data = [
+            ["", "PT", "PTT", "TT", "Fib"],
+            ["pat", "", "", "", ""],
+            ["mix", "", "", "", ""],
+            ["pool", "", "", "", ""]
+        ];
+        var tabular_data = $("#tabular_data").val();
+        if (tabular_data.length > 0) {
+            data = $.parseJSON(tabular_data);
+        }
+
+        $('#tabular_data_table').handsontable({
+            data: data,
+            colHeaders: false,
+            rowHeaders: false,
+            minSpareRows: 4,
+            minSpareCols: 2,
+            afterChange: function(changes, source)
+            {
+                var data = this.getData();
+                var rows = new Array()
+                var cols = new Array()
+                for (var r = 0; r < data.length; r++)
+                {
+                    var rowIsNull = true;
+                    for (var c = 0; c < data[0].length; c++)
+                    {
+                        if (data[r][c] != null)
+                        {
+                            rowIsNull = false;
+                            break;
+                        }
+                    }
+                    rows[r] = rowIsNull;
+                }
+                for (var c = 0; c < data[0].length; c++)
+                {
+                    var colIsNull = true;
+                    for (var r = 0; r < data[0].length; r++)
+                    {
+                        if (data[r][c] != null)
+                        {
+                            colIsNull = false;
+                            break;
+                        }
+                    }
+                    cols[c] = colIsNull;
+                }
+                for (var r = rows.length - 1; r >= 0; r--)
+                {
+                    if (rows[r])
+                    {
+                        data.splice(r,1)
+                    }
+                }
+                for (var c = cols.length - 1; c >= 0; c--)
+                {
+                    if (cols[c])
+                    {
+                        for (var r = 0; r < data.length; r++)
+                        {
+                            data[r].splice(c,1)
+                        }
+                    }
+                }
+                $("#tabular_data").val(JSON.stringify(data));
+            }
+        });
+        if ($("#call_classification").val() != "1:1 mix")
+        {
+            $('#tabular_info_group').hide();
+        }
+
+	});
+</script>
+
+<div id="confirm" class="modal hide fade" style="z-index: 1051">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Confirm delete</h3>
+  </div>
+  <div class="modal-body">
+    <p>Do you want to delete template <strong><span id='confirmname'></span></strong>?</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" onclick="$('#confirm').modal('hide');">Close</a>
+    <a href="#" class="btn btn-primary" onclick="$('#confirm').modal('hide');deleteconfirmbuttonclick();">Yes, delete.</a>
+  </div>
+</div>
+
+<div class="templatelistitem_template templatelistitem" style="display: none">
+    <div class="templa"><a class="btn templatelistitem_star" onclick="startemplate(this);"><i class="icon-star"></i></a></div>
+    <div class="templb"><a class="btn" onclick="selecttemplate(this);"> <span class="templatelistitem_name"></span></a>
+    </div>
+</div>
+<div id="templatemodal" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Template Manager</h3>
+
+        <div class="modal-body">
+
+            <div id="templatelistcontainer">
+                <div id="templatelist">
+
+                </div>
+                <div id="templatecontrols" class="btn-group">
+                    <button id="template_btn_new" class="btn" onclick="newtemplate();"><i class="icon-plus"></i> new
+                    </button>
+                    <button id="template_btn_delete" class="btn" onclick="deletebuttonclick(); return false;"><i
+                            class="icon-trash"></i> delete
+                    </button>
+                </div>
+            </div>
+            <div id="templatebody">
+                <form id="templateform" style="margin: 0">
+                    <input id="templatetitle" type="text" name="title"/>
+                    <textarea id="templatecontents" name="blob"></textarea>
+                    <button id="template_btn_save" class="btn" onclick="savebuttonclick(); return false;"><i
+                            class="icon-check"></i> save
+                    </button>
+                </form>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <a onclick="javascript:$('.modal').modal('hide');" class="btn">Close</a>
+            <a id='template_btn_inserttemplate' class="btn btn-primary" onclick="inserttemplate()">Insert Template</a>
+        </div>
+    </div>
+</div>
+
+<div class="row-fluid">
+    <div class="span12">
+        {% for error in errors %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ error }}
+            </div>
+        {% endfor %}
+        {% if message %}
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message|safe }}
+            </div>
+        {% endif %}
+        <div id="restore_alert" class="alert alert-block" style="display:none; color:black;">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <h3>Warning!</h3>
+
+            <p>This form is restored from an auto-save.  Last time you visited this page, you made some changes and you
+                did not submit the changes by hitting the <span class="label label-info">Save changes</span> button at
+                the bottom of the page. button at the bottom of the page.</p>
+            {% if form['id'] %}<p class="text-error">If you continue editing this form, you may override any changes
+            made previously for this record.</p>{% endif %}
+            <p>You have 2 options:</p>
+            <button id='revert' class='btn btn-primary' onclick="deleteAutosaveForm(); ">Ignore this restored record and go to the last saved (or a new) record</button>
+            <br/><br/>
+            <button id='ignore' class='btn btn-primary' onclick="$('#restore_alert').hide(); startSavingForm(); ">Continue working with this restored record</button>
+
+            <p>Thanks!</p>
+        </div>
+
+        <form id="newform{% if form %}-{{ form['id'] }}{% endif %}" class="form-horizontal"
+              action="{% if form %}{{ url_for(request.endpoint, id=form.id) }}{% else %}{{ url_for(request.endpoint) }}{% endif %}" method="post">
+            <div class="on-call-form on-call-form-meta">
+                <div class="control-group">
+                    <label class="control-label" for="id">Call Number</label>
+
+                    <div class="controls">
+                        <input type="number" name="id" id="id" placeholder="A New Call Number" readonly="readonly"{% if
+                        form %} value="{{ form['id'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="username">Resident</label>
+
+                    <div class="controls">
+                        <input type="text" name="username" id="username" placeholder="Resident Name"
+                               readonly="readonly"{% if form %} value="{{ form['username'] }}"{% endif %}>
+                        <input type="hidden" name="user_id" id="user_id"
+                                {% if form %} value="{{ form['user_id'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="pt_hospital">Hospital</label>
+
+                    <div class="controls">
+                        <select name="pt_hospital" id="pt_hospital" placeholder="Hospital">
+                            {% for row in pt_hospital %}
+                            <option
+                            {% if form and form['pt_hospital'] == row.title %}selected {% endif %}value="{{ row.title
+                            }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="call_classification">Classification</label>
+
+                    <div class="controls">
+
+                        <select name="call_classification" id="call_classification" placeholder="Classification">
+                            {% for row in call_classification %}
+                            <option
+                            {% if form and form['call_classification'] == row.title %}selected {% endif %}value="{{
+                            row.title }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="date_of_call">Date Time</label>
+
+                    <div class="controls">
+                        <input type="text" name="date_of_call" id="date_of_call" placeholder="Date" style="width:120px"{%
+                        if form %} value="{{ form['date_of_call'] }}"{% endif %}>
+                        <input type="text" name="time_of_call" id="time_of_call" placeholder="Time" style="width:120px"{%
+                        if form %} value="{{ form['time_of_call'] }}"{% endif %}>
+                        <span class="help-inline">MM/DD/YYYY HH:MM (24h format)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="on-call-form on-call-form-from">
+                <div class="control-group">
+                    <label class="control-label" for="from_title">From</label>
+
+                    <div class="controls">
+                        <select name="from_title" id="from_title" placeholder="Title" style="width:120px">
+                            {% for row in from_title %}
+                            <option
+                            {% if form and form['from_title'] == row.title %}selected {% endif %}value="{{ row.title
+                            }}">{{ row.title }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="from_who" id="from_who" placeholder="Name"{% if form %} value="{{
+                        form['from_who'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="from_service_floor">Service / Floor</label>
+
+                    <div class="controls">
+                        <input type="text" name="from_service_floor" id="from_service_floor"
+                               placeholder="Service / Floor"{% if form %} value="{{ form['from_service_floor'] }}"{%
+                        endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="telephone_number">Phone Number</label>
+
+                    <div class="controls">
+                        <input type="tel" name="telephone_number" id="telephone_number" placeholder="Phone Number"{% if
+                        form %} value="{{ form['telephone_number'] }}"{% endif %}>
+                    </div>
+                </div>
+            </div>
+            <div class="on-call-form on-call-form-physician">
+                <div class="control-group">
+                    <label class="control-label" for="from_title">Physician Name</label>
+
+                    <div class="controls">
+                        <input type="text" name="physician_name" id="physician_name" placeholder="Name"{% if form %} value="{{
+                        form['physician_name'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="physician_telephone_number">Phone Number</label>
+
+                    <div class="controls">
+                        <input type="tel" name="physician_telephone_number" id="physician_telephone_number" placeholder="Phone Number"{% if
+                        form %} value="{{ form['physician_telephone_number'] }}"{% endif %}>
+                    </div>
+                </div>
+            </div>
+            <div class="on-call-form on-call-form-patient">
+                <div class="control-group">
+                    <label class="control-label" for="pt_name">Patient Name</label>
+
+                    <div class="controls">
+                        <input type="text" name="pt_name" id="pt_name" placeholder="Patient Name"{% if form %} value="{{
+                        form['pt_name'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="pt_hosp_number">Hospital Number</label>
+
+                    <div class="controls">
+                        <input type="text" name="pt_hosp_number" id="pt_hosp_number" placeholder="Hospital Number"{% if
+                        form %} value="{{ form['pt_hosp_number'] }}"{% endif %}>
+                        <span class="help-inline">i.e. the U number</span><div id="pt_hosp_number_other_calls"></div></div>
+
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="pt_location">Patient Location</label>
+
+                    <div class="controls">
+                        <input type="text" name="pt_location" id="pt_location" placeholder="Patient Location"{% if form
+                        %} value="{{ form['pt_location'] }}"{% endif %}>
+                    </div>
+                </div>
+            </div>
+            <div class="on-call-form on-call-form-request">
+                <div class="control-group">
+                    <label class="control-label" for="specific_request">Specific Request</label>
+
+                    <div class="controls">
+                        <input type="text" name="specific_request" id="specific_request" placeholder="Specific Request"
+                               class="input-xxlarge"{% if form %} value="{{ form['specific_request'] }}"{% endif %}>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="staff_contacted"><a style="color:#333333;" href="https://web.labmed.washington.edu/lmr/Phone%20list#Faculty_Contacts" target="_blank">Contacted</a></label>
+
+                    <div class="controls">
+                        <input type="text" name="staff_contacted" id="staff_contacted" placeholder="Contact"{% if form
+                        %} value="{{ form['staff_contacted'] }}"{% endif %}>
+                        <span class="help-inline">Laboratory Medicine faculty and/or staff</span></div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span8">
+                    <div class="on-call-form on-call-form-action">
+                        <div class="control-group">
+                            <label class="control-label" for="relevant_info">Relevant Information</label>
+
+                            <div class="controls">
+                                <textarea name="relevant_info" id="relevant_info" placeholder="relevant information" rows="10"
+                                          style="width: 100%; resize: vertical;">{% if 'relevant_info' in form %}{{
+                                    form['relevant_info']|e }}{% endif %}</textarea>
+
+                                <div class="btn-group" style="float: right; margin-bottom: 5px;">
+                                    <button class="btn btn-mini"
+                                            id="relevant-call-bold"
+                                            onclick="javascript:hen('relevant_info', '\'\'', '\'\''); return false;"><i
+                                            class="icon-bold"></i>
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            id="relevant-call-italic"
+                                            onclick="javascript:hen('relevant_info', '\'\'\'', '\'\'\''); return false;"><i
+                                            class="icon-italic"></i>
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            id="relevant-call-shortcut"
+                                            onclick="javascript:hen('relevant_info', '(call: ', ')'); return false;"><i
+                                            class="icon-share"></i>LinkTo
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            id="relevant-pmid-shortcut"
+                                            onclick="javascript:hen('relevant_info', '(pmid: ', ')'); return false;"><i
+                                            class="icon-share"></i>PMID
+                                    </button>
+                                    <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" onclick="templatesdropdowninit()"  id="relevant-templates-shortcut">Templates
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu template-dropdown-menu" data-textarea-id="relevant_info">
+                                        <li class="divider"></li>
+                                        <li><a onclick="javascript:opentemplatemodal('relevant_info'); return false;">More</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group" id="tabular_info_group">
+                            <label class="control-label" for="relevant_info">Tabular Info</label>
+
+                            <div class="controls">
+                                <div id="tabular_data_table" class="handsontable" style="width: 100%"></div>
+                                <input id="tabular_data" name="tabular_data" type="hidden" value="{% if 'tabular_data' in form %}{{ form['tabular_data']|e }}{% endif %}" />
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="action_taken">Action Taken</label>
+
+                            <div class="controls">
+                                <textarea name="action_taken" id="action_taken" placeholder="action taken" rows="10"
+                                          style="width: 100%; resize: vertical;">{% if 'action_taken' in form %}{{
+                                    form['action_taken']|e }}{% endif %}</textarea>
+
+                                <div class="btn-group" style="float:right; margin-bottom: 5px;">
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('follow_up', '\'\'', '\'\''); return false;"><i
+                                            class="icon-bold"></i>
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('follow_up', '\'\'\'', '\'\'\''); return false;"><i
+                                            class="icon-italic"></i>
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('action_taken', '(call: ', ')'); return false;"><i
+                                            class="icon-share"></i>LinkTo
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('action_taken', '(pmid: ', ')'); return false;"><i
+                                            class="icon-share"></i>PMID
+                                    </button>
+                                    <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" onclick="templatesdropdowninit()">Templates
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu template-dropdown-menu" data-textarea-id="action_taken">
+                                        <li class="divider"></li>
+                                        <li><a onclick="javascript:opentemplatemodal('action_taken'); return false;">More</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="follow_up">Follow Up</label>
+
+                            <div class="controls">
+                                <textarea name="follow_up" id="follow_up" placeholder="follow up" rows="10"
+                                          style="width: 100%; resize: vertical;">{% if 'follow_up' in form %}{{
+                                    form['follow_up']|e }}{% endif %}</textarea>
+
+                                <div class="btn-group" style="float:right; margin-bottom: 5px;">
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('follow_up', '\'\'', '\'\''); return false;"><i
+                                            class="icon-bold"></i>
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('follow_up', '\'\'\'', '\'\'\''); return false;"><i
+                                            class="icon-italic"></i>
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('follow_up', '(call: ', ')'); return false;"><i
+                                            class="icon-share"></i>LinkTo
+                                    </button>
+                                    <button class="btn btn-mini"
+                                            onclick="javascript:hen('follow_up', '(pmid: ', ')'); return false;"><i
+                                            class="icon-share"></i>PMID
+                                    </button>
+                                    <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" onclick="javascript:templatesdropdowninit()">Templates
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu template-dropdown-menu" data-textarea-id="follow_up">
+                                        <li class="divider"></li>
+                                        <li><a onclick="javascript:opentemplatemodal('follow_up'); return false;">More</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span4">
+                    {% if form['id'] %}
+                    <div class="btn-group hideprint">
+                        <button id="flagrecord" class="btn {% if form['flag']==1 %} btn-success{% elif form['flag']==2 %} btn-warning{% elif form['flag']==4 %} btn-danger{% elif form['flag']==8 %} btn-info{% endif %}" style="margin: 10px 0 10px 0"
+                           title="Flagging is for your own use, only you can flag and will see your own flags."
+                           onclick="flag({{ form['id'] }}, {% if form['flag'] %}{{ form['flag'] }}{% else %}1{% endif %});">
+                            <i class="icon-flag"></i> <span>{% if form['flag'] %}This record is flagged{% else %}Flag this record{% endif %}</span>
+                        </button>
+                        <button class="btn dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a onclick="flag({{ form['id'] }}, 1);"><span class="label label-success" style="width: 100%;"><i class="icon-flag"></i> Green Flag</span></a></li>
+                            <li><a onclick="flag({{ form['id'] }}, 2);"><span class="label label-warning" style="width: 100%;"><i class="icon-flag"></i> Yellow Flag</span></a></li>
+                            <li><a onclick="flag({{ form['id'] }}, 4);"><span class="label label-important" style="width: 100%;"><i class="icon-flag"></i> Red Flag</span></a></li>
+                            <li><a onclick="flag({{ form['id'] }}, 8);"><span class="label label-info" style="width: 100%;"><i class="icon-flag"></i> Blue Flag</span></a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <div class="on-call-form on-call-form-tags">
+                        <input name="tag" id="tag" type="text" autocomplete="off" style="margin-top: 10px;">
+                    </div>
+                    <input type="hidden" name="tagsform" id="tagsform"{% if form %} value="{{ form['tagsform'] }}"{% endif %}/>
+                    <div id="tagcloud"></div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                {% if form['id'] %}
+                <a class="btn" href="{{ url_for('show', id=form['id']) }}">Show Record</a>
+                <a id="deleterecord" style="margin-left: 20px;" class="btn" onclick="verify_delete_record();">Delete this record</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    <!--/span-->
+</div>
+<div id="savednotify">saved</div>
+{% endblock %}

@@ -1,0 +1,347 @@
+/*
+* Copyright 2014 Sinan Ussakli. All rights reserved.
+*
+* Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+*/
+
+#templatemodal {
+    width: 800px;
+}
+
+#templatelistcontainer {
+
+    width: 270px;
+    float: left;
+
+    height: 350px;
+}
+
+#templatelist {
+    border: 1px solid #e1e1e8;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    padding: 4px;
+    height: 300px;
+    overflow-y: scroll;
+}
+
+#templatebody {
+    height: 340px;
+    width: 430px;
+    float: left;
+    border: 1px solid #e1e1e8;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    padding: 4px;
+    margin-left: 4px;
+}
+
+#templatebody input, #templatebody textarea {
+    width: 415px;
+}
+
+#templatebody textarea {
+    height: 250px;
+    resize: none;
+}
+
+#templatecontrols {
+    margin-top: 4px;
+    display: block;
+    text-align: center;
+}
+
+.templa {
+    float: left;
+    width: 44px;
+}
+
+.templb {
+    float: left;
+    width: 172px;
+}
+
+.templb .btn {
+    width: 100%;
+    text-align: left;
+}
+
+.templatelistitem {
+    margin-bottom: 5px;
+    display: block;
+
+    min-height: 30px;
+}
+
+.sidebar-nav {
+    padding: 9px 0;
+}
+
+@media screen and  (min-width:980px) {
+    body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+}
+
+@media screen and (max-width: 980px) {
+    /* Enable use of floated navbar text */
+    .navbar-text.pull-right {
+        float: none;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+.nav ul ul, .nav ol ol {
+    list-style-type: none;
+}
+
+.brand {
+    color: #CBE86B !important;
+    text-shadow: none !important;
+}
+
+.navbar-inner {
+    color: #1C140D !important;
+}
+
+.form-horizontal .control-group {
+    margin-bottom: 10px;
+    *zoom: 1;
+}
+
+.help-block,
+.help-inline {
+    color: rgb(193, 193, 193);
+}
+
+/* Base class */
+.on-call-form {
+    position: relative;
+    margin: 10px 0;
+    padding: 20px 19px 10px;
+    *padding-top: 19px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+/* Echo out a label for the header */
+.on-call-form-meta:after {
+    content: "Meta";
+}
+
+.on-call-form-from:after {
+    content: "From";
+}
+
+.on-call-form-physician:after {
+    content: "Physician";
+}
+
+.on-call-form-patient:after {
+    content: "Patient";
+}
+
+.on-call-form-request:after {
+    content: "Request";
+}
+
+.on-call-form-tags:after {
+    content: "Tags";
+}
+
+.on-call-form-action:after {
+    content: "Action";
+}
+
+.on-call-form-search:after {
+    content: "Search";
+}
+
+.on-call-form:after {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #9da0a4;
+    -webkit-border-radius: 4px 0 4px 0;
+    -moz-border-radius: 4px 0 4px 0;
+    border-radius: 4px 0 4px 0;
+}
+
+#savednotify {
+    display: none;
+    background-color: rgba(255, 255, 0, 0.5);
+    color: black;
+    width: 200px;
+    height: 30px;
+    z-index: 100;
+    position: fixed;
+    bottom: 0px;
+    text-align: center;
+    line-height: 30px;
+    right: 0;
+    border: 1px solid silver;
+    -webkit-border-radius: 4px 0 4px 0;
+    -moz-border-radius: 4px 0 4px 0;
+    border-radius: 4px 0 4px 0;
+}
+
+.tr-link {
+    cursor: pointer;
+}
+
+.tr-link:hover {
+    background-color: #fbeed5;
+}
+
+.hashtag {
+    float: left;
+    margin: 5px 5px 0 0;
+    padding: 5px;
+    border: 1px solid #CBCACA;
+    background-color: #f5f5f5;
+}
+
+#tagcloud {
+    clear: both;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+footer {
+    padding-left: 20px;
+}
+
+@media print {
+    body {
+        font-size: 13px;
+        line-height: 17px;
+    }
+
+    .hideprint {
+        display: none;
+    }
+
+    .pagewithbreak {
+        min-height: 5in;
+        page-break-after: always;
+        page-break-inside: avoid;
+    }
+}
+
+.navbarlink {
+    text-decoration: none;
+    color: #777777;
+}
+
+.navbarlink:hover {
+    text-decoration: none;
+    color: #999999;
+}
+
+.pagination {
+    text-align: center;
+}
+
+.bs-docs-sidenav {
+    width: 228px;
+    margin: 30px 0 0;
+    padding: 0;
+    background-color: #fff;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
+}
+
+.bs-docs-sidenav > li > a {
+    display: block;
+    width: 190px  \9;
+    margin: 0 0 -1px;
+    padding: 8px 14px;
+    border: 1px solid #e5e5e5;
+}
+
+.bs-docs-sidenav > li:first-child > a {
+    -webkit-border-radius: 6px 6px 0 0;
+    -moz-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.bs-docs-sidenav > li:last-child > a {
+    -webkit-border-radius: 0 0 6px 6px;
+    -moz-border-radius: 0 0 6px 6px;
+    border-radius: 0 0 6px 6px;
+}
+
+.bs-docs-sidenav > .active > a {
+    position: relative;
+    z-index: 2;
+    padding: 9px 15px;
+    border: 0;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    -webkit-box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1), inset -1px 0 0 rgba(0, 0, 0, .1);
+    -moz-box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1), inset -1px 0 0 rgba(0, 0, 0, .1);
+    box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1), inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+/* Chevrons */
+.bs-docs-sidenav .icon-chevron-right {
+    float: right;
+    margin-top: 2px;
+    margin-right: -6px;
+    opacity: .25;
+}
+
+.bs-docs-sidenav > li > a:hover {
+    background-color: #f5f5f5;
+}
+
+.bs-docs-sidenav a:hover .icon-chevron-right {
+    opacity: .5;
+}
+
+.bs-docs-sidenav .active .icon-chevron-right,
+.bs-docs-sidenav .active a:hover .icon-chevron-right {
+    background-image: url(../img/glyphicons-halflings-white.png);
+    opacity: 1;
+}
+
+.bs-docs-sidenav.affix {
+    top: 40px;
+}
+
+.bs-docs-sidenav.affix-bottom {
+    position: absolute;
+    top: auto;
+    bottom: 270px;
+}
+
+footer {
+    clear: both;
+    display: block;
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 70px;
+    border-top: 1px solid #e5e5e5;
+    background-color: #f5f5f5;
+}
+
+.phi-apply {
+    display: none;
+}

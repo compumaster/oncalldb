@@ -1,0 +1,81 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = off;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET escape_string_warning = off;
+
+SET search_path = residents, pg_catalog;
+
+--
+-- Data for Name: call_classification; Type: TABLE DATA; Schema: residents; Owner: residents
+--
+
+INSERT INTO call_classification VALUES (1, '');
+INSERT INTO call_classification VALUES (3, 'STAT test');
+INSERT INTO call_classification VALUES (4, 'Transfusion reaction');
+INSERT INTO call_classification VALUES (5, '1:1 mix');
+INSERT INTO call_classification VALUES (2, 'Approval/Send out');
+INSERT INTO call_classification VALUES (6, 'Consultation');
+INSERT INTO call_classification VALUES (7, 'Transplant');
+INSERT INTO call_classification VALUES (8, 'Lab value interpretation');
+INSERT INTO call_classification VALUES (9, 'Complaint');
+INSERT INTO call_classification VALUES (10, 'Critical Value');
+INSERT INTO call_classification VALUES (11, 'Lab error/Pt safety');
+INSERT INTO call_classification VALUES (12, 'Missing Lab Result');
+INSERT INTO call_classification VALUES (13, 'Requisition clarification');
+INSERT INTO call_classification VALUES (14, 'Mislabeled specimen');
+INSERT INTO call_classification VALUES (15, 'Transfer of Care');
+INSERT INTO call_classification VALUES (16, 'Information Only');
+
+--
+-- Data for Name: from_title; Type: TABLE DATA; Schema: residents; Owner: residents
+--
+
+INSERT INTO from_title VALUES (1, '');
+INSERT INTO from_title VALUES (2, 'Dr.');
+INSERT INTO from_title VALUES (3, 'Nurse');
+INSERT INTO from_title VALUES (4, 'Technologist');
+INSERT INTO from_title VALUES (5, 'Technician');
+INSERT INTO from_title VALUES (6, 'Other');
+
+
+--
+-- Data for Name: pt_hospital; Type: TABLE DATA; Schema: residents; Owner: residents
+--
+
+INSERT INTO pt_hospital VALUES (1, '', 0);
+INSERT INTO pt_hospital VALUES (2, 'UWMC', 1);
+INSERT INTO pt_hospital VALUES (3, 'HMC', 2);
+INSERT INTO pt_hospital VALUES (4, 'CHRMC', 3);
+INSERT INTO pt_hospital VALUES (5, 'VA', 4);
+INSERT INTO pt_hospital VALUES (6, 'Other', 6);
+INSERT INTO pt_hospital VALUES (7, 'NWH', 5);
+
+
+--
+-- Data for Name: tags; Type: TABLE DATA; Schema: residents; Owner: residents
+--
+
+INSERT INTO tags VALUES ('Practice');
+INSERT INTO tags VALUES ('Information Only');
+INSERT INTO tags VALUES ('Chemistry');
+INSERT INTO tags VALUES ('Coagulation');
+INSERT INTO tags VALUES ('Microbiology');
+INSERT INTO tags VALUES ('Immunology');
+INSERT INTO tags VALUES ('Genetics');
+INSERT INTO tags VALUES ('Toxicology');
+INSERT INTO tags VALUES ('Virology');
+INSERT INTO tags VALUES ('Transfusion');
+INSERT INTO tags VALUES ('Hematopathology');
+INSERT INTO tags VALUES ('Parasitology');
+INSERT INTO tags VALUES ('Hematology');
+INSERT INTO tags VALUES ('SPS');
+INSERT INTO tags VALUES ('Teaching Case');
+
+

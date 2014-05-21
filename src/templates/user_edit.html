@@ -1,0 +1,132 @@
+{% extends "layout.html" %}
+{% block body %}
+<script>
+    function verify_delete_record()
+    {
+        $('#deleterecordconfirm').remove();
+        $('#delete-user').after($('<a id="deleterecordconfirm" style="margin-left: 5px;" class="pointer" href="{{ url_for('delete_user', username=form['username']) }}">Yes, please.</a>'))
+    }
+
+	$(document).ready(function() {
+	});
+</script>
+
+<div class="row-fluid">
+    <div class="span12">
+        <h3>{{ title }}</h3>
+        {% for error in errors %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ error }}
+            </div>
+        {% endfor %}
+        {% if message %}
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message|safe }}
+            </div>
+        {% endif %}
+        <form id="userform" class="form-horizontal" action="{{ form_action_url }}" method="post">
+            <h2>{{ form['fullname'] }}</h2>
+            <div class="control-group">
+                <label class="control-label" for="username">On-Call DB username</label>
+
+                <div class="controls">
+                    <input type="text" name="username" id="username" placeholder="on-call db username"
+                           value="{{ form['username'] }}">
+                    <input type="hidden" name="id" id="id"
+                             value="{{ form['id'] }}">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="networkid">Network username</label>
+
+                <div class="controls">
+                    <input type="text" name="networkid" id="networkid" placeholder="network username"
+                           value="{{ form['networkid'] }}"{% if form['networkid'] and not session['user_auth_level'] >= 10000 %}disabled{% endif %}>
+                </div>
+            </div>
+
+            {% if not form and not config.USES_PUBCOOKIE and session['user_auth_level'] >= 1000 %} {# poweruser #}
+                <div class="control-group">
+                    <label class="control-label" for="password">Password</label>
+
+                    <div class="controls">
+                        <input type="password" name="password" id="password" placeholder="password"
+                            value="{{ form['password'] }}">
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="control-group">
+                <label class="control-label" for="fullname">Full name</label>
+
+                <div class="controls">
+                    <input type="text" name="fullname" id="fullname" placeholder="full name"
+                            value="{{ form['fullname'] }}">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="pager">Pager</label>
+
+                <div class="controls">
+                    <input type="text" name="pager" id="pager" placeholder="pager"
+                            value="{{ form['pager'] }}">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="email">E-mail</label>
+
+                <div class="controls">
+                    <input type="text" name="email" id="email" placeholder="e-mail"
+                            value="{{ form['email'] }}">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="cellphone">Cellphone</label>
+
+                <div class="controls">
+                    <input type="text" name="cellphone" id="cellphone" placeholder="cellphone"
+                            value="{{ form['cellphone'] }}">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="deskphone">Office phone</label>
+
+                <div class="controls">
+                    <input type="text" name="deskphone" id="deskphone" placeholder="office phone"
+                            value="{{ form['deskphone'] }}">
+                </div>
+            </div>
+
+            {% if session['user_auth_level'] >= 1000 %} {# poweruser #}
+                {% if not form or (form and form['auth_level'] <= session['user_auth_level']) %}
+                <div class="control-group">
+                    <label class="control-label" for="user_auth_level">Authorization Level</label>
+
+                    <div class="controls">
+                            <select name="auth_level" id="user_auth_level" placeholder="authorization level" style="width:220px">
+                                {% for row in user_auth_levels %}
+                                <option
+                                {% if form and form['auth_level'] == row[0] %}selected {% endif %}value="{{ row[0] }}">{{ row[1] }}</option>
+                                {% endfor %}
+                            </select>
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                {% if delete_button %}<a id='delete-user' class="btn btn-info" onclick="verify_delete_record();">Delete this user</a>{% endif %}
+                {% if change_password_button %}<a id='change-password' class="btn btn-info" href="{{ url_for('edit_user_password', username=form['username']) }}">Change password</a>{% endif %}
+            </div>
+        </form>
+    </div>
+    <!--/span-->
+</div>
+{% endblock %}

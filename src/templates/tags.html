@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% block body %}
+<script type="text/javascript">
+
+    function verifyRemoveFromTagsList(removeItem)
+    {
+        $('#deleterecordconfirm').remove();
+        $(removeItem).after($('<a id="deleterecordconfirm" style="margin-left: 5px;" class="pointer" onclick="removeFromTagsList($(this));">Yes, please delete.</a>'))
+
+    }
+    function removeFromTagsList(removeItem)
+    {
+        var tag = $($(removeItem).parent().find('span')[0]).text();
+        $.ajax({
+             type: "GET",
+             cache: false,
+             url: "{{ url_for('ajax') }}?action=deletetag&tag=" + tag,
+             success: function(data) {
+                window.location.reload();
+             }
+        });
+
+    }
+    $(document).ready(function() {
+        $('.hashtag i').click(function(){
+            verifyRemoveFromTagsList($(this));
+        }).mouseover(function(){
+            $(this).removeClass('icon-white');
+        }).mouseout(function(){
+            $(this).addClass('icon-white');
+        });
+        initTrip();
+    });
+</script>
+<div class="row-fluid">
+    <div class="span12">
+        <h2>Tags</h2>
+    </div>
+</div>
+{% if request.endpoint == 'tags' and session['user_auth_level'] >= 1000 %}{# power user and up. #}
+<div class="row-fluid">
+    <div class="span12">
+        <form id="tagsform" class="form-horizontal" action="{{ url_for('tags') }}" method="post">
+            <div class="control-group">
+                <label class="control-label" for="tag">Create a new tag</label>
+
+                <div class="controls">
+                    <input type="text" name="tag" id="tag" placeholder="a new tag"> <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+<div class="row-fluid">
+     <div class="span12" id="tags-list">
+         {% for tag in tags %}
+            <div class="hashtag">
+                <a href="{{ url_for('tag', tag = tag['tag']) }}"><span>{{tag['tag']}}</span> ({{tag['count']}})</a>
+                {% if request.endpoint == 'tags' and session['user_auth_level'] >= 1000 %}{# power user and up. #}
+                <i class='icon-remove-circle icon-white' style='cursor: pointer;'></i>
+                {% endif %}
+            </div>
+         {% endfor %}
+     </div>
+ </div>
+ {% if tag %}
+
+ <div class="row-fluid">
+     <div class="span12">
+          <h2>{{tag}}</h2>
+          {% if taggedcalls %}
+          <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Call&nbsp;Id</th>
+                    <th>Specific Request</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for call in taggedcalls %}
+                <tr class="tr-link">
+                  <td>{{ call['id'] }}</td>
+                  <td><a href="{{ url_for('show', id=call['id']) }}">{{ call['specific_request']|default('- blank -', true) }}</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+          </table>
+          {% else %}
+          no records found
+          {% endif %}
+     </div>
+ </div>
+ {% endif %}
+{% endblock %}

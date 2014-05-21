@@ -1,0 +1,51 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.tr-link').click(function() {
+        var href = $(this).find("a").attr("href");
+        if(href) {
+            window.location = href;
+        }
+    });
+    initTrip();
+});
+</script>
+  <div class="row-fluid">
+    <div class="span12">
+      <h2>Latest Entries</h2>
+      <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>Call&nbsp;Id</th>
+            <th>Resident</th>
+            <th>Specific Request</th>
+            <th>Last Update</th>
+            <th style="width: 14px;" id="header-comment"><i class="icon-comment"></i></th>
+            <th id="header-edit">&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in records  %}
+        <tr class="tr-link">
+          <td>{{ row.id }}</td>
+          <td>{{ row.username}}</td>
+          <td><a href="{{ url_for('show', id=row.id) }}">{{ row.specific_request|default('- blank -', true) }}</a></td>
+          <td>{{ row.updated.strftime('%m/%d/%Y&nbsp;%H:%M')|safe }}</td>
+          <td>{% if row.commented > 0 %}{{ row.commented }}{% else %}&nbsp;{% endif %}</td>
+          <td>{% if row.user_id == session['user_id'] %}<a href="{{ url_for('edit', id=row.id) }}">edit</a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!--/span--> 
+  </div>
+  <div class="pagination" id="pagination">
+  <ul>
+    {% for row in pagination %}
+    <li{% if row.current %} class="active"{% endif %}><a href="{{ url_for('list', p=row.value) }}">{{ row.label }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,202 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+    </div><!-- there must be no float on parent elements if we want page break on most browsers -->
+    <style>
+        .vlabel {
+
+            min-width: 150px;
+            display: inline-block;
+            text-align: right;
+        }
+        .vvalue {
+            font-weight: 600;
+        }
+        h3, h4 {
+            margin: 2px 0;
+        }
+        .row-fluid [class*="span"] {
+            min-height: inherit !important;
+        }
+        hr {
+            margin: 2px 0;
+            height: 3px;
+        }
+        #create-comment-box
+        {
+            margin: 5px;
+        }
+        .update {
+            font-size: 0.9em;
+            color: gray;
+            margin-right: 5px;
+        }
+        .owner {
+            margin-right: 5px;
+        }
+        .well
+        {
+            margin:2px 0;
+        }
+        .space {
+            margin: 0 3px;
+        }
+    </style>
+    <script type="text/javascript">
+        function create_comment(id, blob, updated, owner)
+        {
+            blob = blob.replace(/\r/g, "").replace(/\n/g, "<br />");
+
+            var html = '<div id="comment-' + id + '" class="well well-small"><span>' + blob + '</span></div>'
+                                    + '<div style="float:right;" class="clearfix">'
+                                    + '<span class="update">' + updated + '</span>'
+                                    + '<span class="owner">' + owner + '</span>';
+            html += '</div>'
+                    + '<div style="clear:both">';
+            return $(html);
+        }
+    </script>
+<div class="alert hideprint">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <p>Will print {{ records|count }} records.</p>
+  <a id='print-calls' onclick="window.print();" class="btn">Print!</a>
+  <a onclick="$('.phi').addClass('phi-apply');window.print();$('.phi').removeClass('phi-apply');" class="btn">Print without patient info!</a>
+  <ul>
+  {% for record in records %}
+    <li><a href="#r{{ record.id }}">{{ record.id }} - {{ record.specific_request }}</a></li>
+  {% endfor %}
+  </ul>
+</div>
+{% for record in records %}
+
+
+<div class="pagewithbreak">
+  <a name="r{{ record.id }}"></a>
+  <h3 class="text-center only-show-at-print">University of Washington</h3>
+  <h4 class="text-center only-show-at-print">Department of Laboratory Medicine</h4>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Call Id:</span>
+          <span class="vvalue">{{ record.id }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Hospital:</span>
+          <span class="vvalue">{{ record.pt_hospital }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Resident on Call:</span>
+          <span class="vvalue">{{ record.username }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Call Classification:</span>
+          <span class="vvalue">{{ record.call_classification }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Date:</span>
+          <span class="vvalue">{{ record.date_of_call }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Time:</span>
+          <span class="vvalue">{{ record.time_of_call }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Day of Week:</span>
+          <span class="vvalue">{{ record.day_of_week }}</span>
+      </div>
+      <div class="span6">
+      </div>
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">From:</span>
+          <span class="vvalue">{{ record.from_title }} {{ record.from_who }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Patient Name:</span>
+          <span class="vvalue phi">{{ record.pt_name }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Service/Floor:</span>
+          <span class="vvalue phi">{{ record.from_service_floor }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Hospital #:</span>
+          <span class="vvalue phi">{{ record.pt_hosp_number }}</span>
+      </div>
+  </div>
+  <div class="row-fluid">
+      <div class="span6">
+          <span class="vlabel">Phone #:</span>
+          <span class="vvalue">{{ record.telephone_number }}</span>
+      </div>
+      <div class="span6">
+          <span class="vlabel">Location of Patient:</span>
+          <span class="vvalue">{{ record.pt_location }}</span>
+      </div>
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span6">
+          <div>
+              <span class="vlabel">Specific Request:</span>
+              <span class="vvalue">{{ record.specific_request }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Lab. Med. faculty/staff contacted:</span>
+              <span class="vvalue">{{ record.staff_contacted}}</span>
+          </div>
+      </div>
+      <div class="span6">
+          <div>
+              <span class="vlabel">Physician name:</span>
+              <span class="vvalue">{{ record.physician_name }}</span>
+          </div>
+          <div>
+              <span class="vlabel">Physician phone #:</span>
+              <span class="vvalue">{{ record.physician_telephone_number }}</span>
+          </div>
+      </div>
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span{% if record.tagsform %}8{% else %}12{% endif %}">
+          <h4>Relevant Information</h4>
+          <p>{{ record.relevant_info|safe  }}</p>
+          <h4>Action Taken</h4>
+          <p>{{ record.action_taken|safe  }}</p>
+          <h4>Follow Up</h4>
+          <p>{{ record.follow_up|safe  }}</p>
+      </div>
+      {% if record.tagsform %}
+      <div class="span4">
+          <h4>Tags</h4>
+          {% for tag in record.tagsform %}
+          <div class='hashtag'> {{ tag }}</div>
+          {% endfor %}
+      </div>
+      {% endif %}
+  </div>
+  <hr />
+  <div class="row-fluid">
+      <div class="span12">
+          {% if 'user_id' in session and record.user_id == session['user_id'] %}<a id='edit-call' href="{{ url_for("edit", id = record.id) }}" class="btn hideprint">Edit this record</a> {% endif %}
+          <div id='comments{{ record.id }}'></div>
+      </div>
+  </div>
+  <script type="text/javascript">
+      {% for comment in record.comments %}
+            $('#comments' + {{ record.id }}).append(create_comment({{ comment.id }}, "{{ comment.blob }}", "{{ comment.updated }}", "{{ comment.user_id }}"));
+      {% endfor %}
+  </script>
+</div>
+  {% endfor %}
+   <div>
+  {% endblock %}

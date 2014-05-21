@@ -1,0 +1,115 @@
+﻿{% extends "layout.html" %}
+{% block body %}
+<script>
+    $(document).ready(function() {
+        $('#tabs a').click(function (e) {
+          e.preventDefault();
+          $(this).tab('show');
+        })
+        $('#tabs a:first').tab('show');
+         initTrip();
+	});
+</script>
+  <div class="row-fluid">
+    <div class="span12">
+        {% if not renderwelcome %}
+      <h2>{{ session['user_username'] }}'s latest entries</h2>
+      <ul class="nav nav-tabs" id="tabs">
+        <li id="latest-tab"><a href="#latest">Latest calls ({{latestrecords|count()}})</a></li>
+        <li id="flagged-tab"><a href="#flagged">Flagged calls ({{flaggedrecords|count()}})</a></li>
+        <li id="commented-tab"><a href="#commented">Commented calls ({{commentedrecords|count()}})</a></li>
+      </ul>
+      <div class="tab-content">
+          <div class="tab-pane" id="latest">
+              <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Call&nbsp;Id</th>
+                  <th>Specific Request</th>
+                  <th>Last Update</th>
+                  <th style="width: 14px;"><i id="comment-header" class="icon-comment"></i></th>
+                  <th style="width: 14px;">&nbsp;</th>
+                  <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in latestrecords  %}
+                <tr>
+                  <td>{{ row.id }}</td>
+                  <td><a href="{{ url_for('show', id=row.id) }}">{{ row.specific_request|default('- blank -', true) }}</a></td>
+                  <td>{{ row.updated.strftime('%m/%d/%Y&nbsp;%H:%M')|safe }}</td>
+                  <td>{% if row.commented > 0 %}{{ row.commented }}{% else %}&nbsp;{% endif %}</td>
+                  <td>{% if row.flag %}<span class="label {% if row.flag==1 %} label-success{% elif row.flag==2 %} label-warning{% elif row.flag==4 %} label-important{% elif row.flag==8 %} label-info{% endif %}"><i class="icon-flag"></i></span>{% else %}&nbsp;{% endif %}</td>
+                  <td><a href="{{ url_for('edit', id=row.id) }}">edit</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+          <div class="tab-pane" id="flagged">
+              <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Call&nbsp;Id</th>
+                  <th>Specific Request</th>
+                  <th>Last Update</th>
+                  <th style="width: 14px;"><i class="icon-comment"></i></th>
+                  <th style="width: 14px;">&nbsp;</th>
+                  <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in flaggedrecords  %}
+                <tr>
+                  <td>{{ row.id }}</td>
+                  <td><a href="{{ url_for('show', id=row.id) }}">{{ row.specific_request|default('- blank -', true) }}</a></td>
+                  <td>{{ row.updated.strftime('%m/%d/%Y&nbsp;%I:%M')|safe }}</td>
+                  <td>{% if row.commented > 0 %}{{ row.commented }}{% else %}&nbsp;{% endif %}</td>
+                  <td>{% if row.flag %}<span class="label {% if row.flag==1 %} label-success{% elif row.flag==2 %} label-warning{% elif row.flag==4 %} label-important{% elif row.flag==8 %} label-info{% endif %}"><i class="icon-flag"></i></span>{% else %}&nbsp;{% endif %}</td>
+                  <td><a href="{{ url_for('edit', id=row.id) }}">edit</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+          <div class="tab-pane" id="commented">
+              <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Call&nbsp;Id</th>
+                  <th>Specific Request</th>
+                  <th>Last Update</th>
+                  <th style="width: 14px;"><i class="icon-comment"></i></th>
+                  <th style="width: 14px;">&nbsp;</th>
+                  <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in commentedrecords  %}
+                <tr>
+                  <td>{{ row.id }}</td>
+                  <td><a href="{{ url_for('show', id=row.id) }}">{{ row.specific_request|default('- blank -', true) }}</a></td>
+                  <td>{{ row.updated.strftime('%m/%d/%Y&nbsp;%I:%M')|safe }}</td>
+                  <td>{% if row.commented > 0 %}{{ row.commented }}{% else %}&nbsp;{% endif %}</td>
+                  <td>{% if row.flag %}<span class="label {% if row.flag==1 %} label-success{% elif row.flag==2 %} label-warning{% elif row.flag==4 %} label-important{% elif row.flag==8 %} label-info{% endif %}"><i class="icon-flag"></i></span>{% else %}&nbsp;{% endif %}</td>
+                  <td><a href="{{ url_for('edit', id=row.id) }}">edit</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+      </div>
+        {% else %}
+        <div class="hero-unit">
+            <div class="text-center"><img src="{{ url_for('static', filename='assets/img/dna.jpg') }}" class="img-rounded" /></div>
+            <h1>On-Call Database</h1>
+            <p style="margin-bottom: 20px">Welcome to the Department of Laboratory Medicine On-Call Database.</p>
+            
+            <p><a href="{{ url_for('search') }}" class="btn btn-primary btn-large">Search »</a></p>
+        </div>
+        {% endif %}
+     
+    </div>
+    <!--/span--> 
+  </div>
+{% endblock %}

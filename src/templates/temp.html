@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include 'head.html' %}
+</head>
+
+<body>
+<script>
+        function resettemplatebuttons() {
+            $("#template_btn_add").prop('disabled', true);
+            $("#template_btn_delete").prop('disabled', true);
+            $("#template_btn_save").prop('disabled', true);
+            $('#template_btn_save').data('state', '');
+        }
+        function template(name) {
+            $('#templatemodal').modal();
+        }
+        function selecttemplate(item)
+        {
+            resettemplatebuttons();
+            template = $(item).parent().parent();
+            $('#templatecontents').val($(template).data('blob'));
+            $('#templatetitle').val($(template).data('title'));
+            if (!$(template).data('department_template'))
+            {
+                $('#template_btn_save').prop('disabled', false);
+                $('#template_btn_delete').prop('disabled', false);
+            }
+            $('#template_btn_save').data('state', $(template).data('id'));
+        }
+        function newtemplate(item)
+        {
+            resettemplatebuttons();
+            $('#templatecontents').html('');
+            $('#templatetitle').val('');
+            $('#template_btn_save').prop('disabled', false);
+            $('#template_btn_save').data('state', 'new');
+        }
+
+        function createtemplatelistitem(id, title, blob, department_template)
+        {
+            var template = $('.templatelistitem_template').clone();
+            template.removeClass('templatelistitem_template');
+            template.css('display','');
+            template.find('.templatelistitem_name').text(title);
+            template.data('blob', blob);
+            template.data('title', title);
+            template.data('id', id);
+            template.data('department_template', department_template);
+            return template;
+        }
+
+        function deletebuttonclick()
+        {
+            $('#confirmname').html($('#templatetitle').val());
+            $('#confirm').modal();
+        }
+
+        function deleteconfirmbuttonclick()
+        {
+            id = $('#template_btn_save').data('state');
+            $.ajax({
+                 type: "POST",
+                 url: "{{ url_for("ajax") }}?action=deletetemplate",
+                 data: "id=" + id,
+                 success: function(json) {
+                     if (json != '0')
+                     {
+                         $('#templatelist').children().each(function(index){
+                            if ($(this).data('id') == id)
+                            {
+                                $(this).remove();
+                            }
+                         });
+                         $('#templatecontents').val('');
+                         $('#templatetitle').val('');
+                         resettemplatebuttons();
+                     }
+                 }
+            });
+        }
+
+        function savebuttonclick()
+        {
+            if ($('#template_btn_save').data('state') == 'new')
+            {
+                var data = $('#templateform').serialize();
+                $.ajax({
+                     type: "POST",
+                     url: "{{ url_for("ajax") }}?action=addtemplate",
+                     data: data,
+                     success: function(json) {
+                         if (json != '0')
+                         {
+                             var template = $.parseJSON(json);
+                             $('#templatelist').prepend(
+                                    createtemplatelistitem(template.id, template.title, template.blob, template.department_template));
+                             $('#template_btn_save').data('state', template.id);
+                             $('#template_btn_delete').prop('disabled', false);
+                         }
+                     }
+                });
+            }
+            else
+            {
+                 var data = $('#templateform').serialize();
+                 data = data + "&id=" + $('#template_btn_save').data('state');
+                 $.ajax({
+                     type: "POST",
+                     url: "{{ url_for("ajax") }}?action=settemplate",
+                     data: data,
+                     success: function(json) {
+                         var template = $.parseJSON(json);
+                         $('#templatelist').children().each(function(index){
+                            if ($(this).data('id') == template.id)
+                            {
+                                $(this).replaceWith(
+                                        createtemplatelistitem(template.id, template.title, template.blob, template.department_template));
+                            }
+                         });
+
+                     }
+                });
+            }
+        }
+
+        function inittemplatemanager()
+        {}
+	$(document).ready(function() {
+
+
+        template("a");
+	});
+</script>
+
+    <style>
+
+    #templatemodal
+    {
+        width: 800px;
+    }
+    #templatelistcontainer {
+
+        width:270px;
+        float:left;
+
+
+        height: 350px;
+    }
+    #templatelist {
+        border: 1px solid #e1e1e8;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;
+        padding: 4px;
+        height: 300px;
+        overflow-y: scroll;
+    }
+    #templatebody
+    {
+        height: 340px;
+        width: 430px;
+        float: left;
+        border: 1px solid #e1e1e8;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;
+        padding: 4px;
+        margin-left: 4px;
+    }
+
+    #templatebody input, #templatebody textarea
+    {
+        width: 415px;
+    }
+    #templatebody textarea {
+        height: 250px;
+        resize: none;
+    }
+    #templatecontrols {
+        margin-top: 4px;
+        display:block;
+        text-align: center;
+    }
+
+    .templa {
+        float: left;
+        width: 44px;
+    }
+    .templb {
+        float: left;
+        width: 172px;
+    }
+    .templb .btn {
+        width: 100%;
+        text-align: left;
+    }
+    .templatelistitem {
+        margin-bottom: 5px;
+        display: block;
+
+        min-height: 30px;
+    }
+
+</style>
+<div id="confirm" class="modal hide fade" style="z-index: 1051">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Confirm delete</h3>
+  </div>
+  <div class="modal-body">
+    <p>Do you want to delete template <strong><span id='confirmname'></span></strong>?</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" onclick="$('#confirm').modal('hide');">Close</a>
+    <a href="#" class="btn btn-primary" onclick="$('#confirm').modal('hide');deleteconfirmbuttonclick();">Yes, delete.</a>
+  </div>
+</div>
+
+<div class="templatelistitem_template templatelistitem" style="display: none">
+    <div class="templa"><a class="btn templatelistitem_star"><i class="icon-star"></i></a></div>
+    <div class="templb"><a class="btn"  onclick="selecttemplate(this);"> <span class="templatelistitem_name"></span></a></div>
+</div>
+<div id="templatemodal" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Template Manager</h3>
+ <div class="modal-body">
+
+        <div id="templatelistcontainer">
+            <div id="templatelist">
+
+            </div>
+            <div id="templatecontrols" class="btn-group">
+                <button id="template_btn_new" class="btn" onclick="newtemplate();"><i class="icon-plus"></i> new</button>
+                <button id="template_btn_delete"class="btn" onclick="deletebuttonclick(); return false;"><i class="icon-trash"></i> delete</button>
+            </div>
+        </div>
+        <div id="templatebody">
+            <form id="templateform" style="margin: 0" >
+                <input id="templatetitle" type="text" name="title"/>
+                <textarea id="templatecontents" name="blob"></textarea>
+                <button id="template_btn_save" class="btn" onclick="savebuttonclick(); return false;"><i class="icon-check"></i> save</button>
+            </form>
+        </div>
+
+  </div>
+  <div class="modal-footer">
+    <a onclick="javascript:$('.modal').modal('hide');" class="btn">Close</a>
+    <a class="btn btn-primary">Insert Template</a>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+
+  </div>
+
+</div>
+<!--/.fluid-container--> 
+
+<!-- javascript
+    ================================================== --> 
+<!-- Placed at the end of the document so the pages load faster --> 
+<script src="static/assets/js/bootstrap-transition.js"></script> 
+<script src="static/assets/js/bootstrap-alert.js"></script> 
+<script src="static/assets/js/bootstrap-modal.js"></script> 
+<script src="static/assets/js/bootstrap-dropdown.js"></script> 
+<script src="static/assets/js/bootstrap-scrollspy.js"></script> 
+<script src="static/assets/js/bootstrap-tab.js"></script> 
+<script src="static/assets/js/bootstrap-tooltip.js"></script> 
+<script src="static/assets/js/bootstrap-popover.js"></script> 
+<script src="static/assets/js/bootstrap-button.js"></script> 
+<script src="static/assets/js/bootstrap-collapse.js"></script> 
+<script src="static/assets/js/bootstrap-carousel.js"></script> 
+<script src="static/assets/js/bootstrap-typeahead.js"></script>
+<script src="static/assets/js/jquery.deserialize.min.js"></script>
+</body>
+</html>

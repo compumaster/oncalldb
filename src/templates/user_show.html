@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block body %}
+<script>
+	$(document).ready(function() {
+	});
+</script>
+    <style>
+        .vlabel {
+
+            min-width: 150px;
+            display: inline-block;
+            text-align: right;
+        }
+        .vvalue {
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+<div class="row-fluid">
+    <div class="span12">
+        {% for error in errors %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ error }}
+            </div>
+        {% endfor %}
+        {% if message %}
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message|safe }}
+            </div>
+        {% endif %}
+        <h2>{{ form['fullname'] }}</h2>
+        <div class="span12">
+            <span class="vlabel">On-Call DB username</span>
+            <span class="vvalue">{{ form['username'] }}</span>
+        </div>
+        <div class="span12">
+            <span class="vlabel">Network username</span>
+            <span class="vvalue">{{ form['networkid'] }}</span>
+        </div>
+        <div class="span12">
+            <span class="vlabel">Full name</span>
+            <span class="vvalue">{{ form['fullname'] }}</span>
+        </div>
+        <div class="span12">
+            <span class="vlabel">Pager</span>
+            <span class="vvalue">{{ form['pager'] }}</span>
+        </div>
+        <div class="span12">
+            <span class="vlabel">Email</span>
+            <span class="vvalue"><a href="mailto:{{ form['email'] }}">{{ form['email'] }}</a></span>
+        </div>
+        <div class="span12">
+            <span class="vlabel">Cellphone</span>
+            <span class="vvalue">{{ form['cellphone'] }}</span>
+        </div>
+        <div class="span12">
+            <span class="vlabel">Office phone</span>
+            <span class="vvalue">{{ form['deskphone'] }}</span>
+        </div>
+    </div>
+    <!--/span-->
+</div>
+<div class="row-fluid">
+    <div class="span12">
+        {% if ('user_id' in session and form['id'] == session['user_id'] and session['user_auth_level'] >= 100)
+              or session['user_auth_level'] >= 1000 %}<a id='edit-user' href="{{ url_for('edit_user', username=form.username) }}" class="btn">Edit</a> {% endif %}
+    </div>
+  </div>
+{% endblock %}
