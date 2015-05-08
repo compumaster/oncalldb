@@ -17,6 +17,7 @@ Steps:
 - `sudo aptitude install libapache2-mod-wsgi`
 - Restart Apache:
 - `sudo service apache2 restart`
+
 ### PostgreSQL ###
 - Install postgreSQL:
 - `sudo apt-get install postgresql postgresql-contrib`
@@ -43,8 +44,8 @@ Now you should be able to login to postgres via your computer. You may want to r
 - Open a SQL Query dialog and paste the `res_data_schema.backup` and execute the script.
 - Open another SQL Query dialog and paste the `res_data.backup` and execute the script.
 - Don't close the pgAdminIII (or read the create a new user section below)
-### Python 2.7, Flask, psycopg2 ###
 
+### Python 2.7, Flask, psycopg2 ###
 - Install python 
 - `sudo apt-get install python2.7 python-dev`
 - Install pip:
@@ -112,8 +113,8 @@ The passwords are calculated by SHA224 and above is `password` as password.
 
 ### Things to consider ###
 - Some templates still have University of Washington related strings, you may want to clean them up. All templates are in the /src/templates folder
+ 
 ### Troubleshooting ###
-
 If at any time the application gives Internal server error, or some exception check this file:
 `sudo tail /var/log/apache2/error.log`
 
