@@ -37,20 +37,52 @@
 <h2>
 <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h2>
 
-<p>One effective method for assessing core competencies in Clinical Pathology is through evaluation of a log of clinical cases.  This application was created to log resident consults received on Clinical Pathology call and is currently used by the Laboratory Medicine residents at the University of Washington.  It uses the Flask python framework and a PostgreSQL instance hosted on a server. The application is configured to use Apache and University of Washington's pubCookie web authentication services but can be configured to use forms authentication.</p>
+<p>One effective method for assessing core competencies in Clinical Pathology is through evaluation of a log of clinical cases.  This application was created to log resident consults received on Clinical Pathology call and is currently used by the Laboratory Medicine residents at the University of Washington.  </p>
+
+<p>It uses the Flask Python framework and a PostgreSQL instance hosted on a server. The application is configured to use either Apache and University of Washington's pubCookie web authentication services or forms authentication but it's pretty straightforward to introduce other authentication methods such as AD.</p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
 
 <p>The application offers:</p>
 
 <ul>
-<li>Interfaces to track incoming calls to on-call residents, as well as search, list and view each record.</li>
+<li>Interfaces to track incoming calls to on-call residents, as well as tag, comment, search, list and view each record.</li>
 <li>Search functionality that allows residents to search the meta-data fields and free text regions separately and allows saving search queries for future use and reporting.</li>
 <li>Formatted printing for presenting cases during call rounds, with an option for excluding protected health information (from metadata) for educational purposes.</li>
-<li>Features such as templates for pre-determined text structures, insertion of tables for specific call types, automatic saving of non-submitted data to the server for auto-restore, tagging, flagging, linking to other database entries and PubMed records, and automated search for a patient’s previous entries in the database when a medical record number is entered.</li>
+<li>Features such as 
+
+<ul>
+<li>Templates for pre-determined text structures, </li>
+<li>Insertion of tables for specific call types, </li>
+<li>Automatic saving of non-submitted data to the server for auto-restore, </li>
+<li>Tagging with predetermined values for categorization of calls and analysis, </li>
+<li>Flagging with 4 different flags allowing residents to track the calls, </li>
+<li>Linking to other database entries and PubMed records, </li>
+<li>and automated search for a patient’s previous entries in the database when a medical record number is entered.</li>
+</ul>
+</li>
 <li>User commenting (eg. faculty) on other user entries for follow up and education and voting for useful entries to make them more visible.</li>
 <li>Multiple user account levels, allowing some users permission to create and delete other users and maintain various aspects of the system.</li>
+<li>Uses Twitter's Bootstrap framework, making the site mobile friendly.</li>
 </ul>
 
-<p>This application has been tested on all major browsers and operating systems.  An instance has been used by the University of Washington Department of Laboratory Medicine since July 2013.</p>
+<p>This application has been tested on all major browsers and operating systems.  </p>
+
+<h2>
+<a id="current-deployments-of-this-app" class="anchor" href="#current-deployments-of-this-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Current Deployments of this app</h2>
+
+<ul>
+<li>
+<a href="http://www.pathology.washington.edu/">University of Washington Department of Laboratory Medicine</a> since July 2013.</li>
+<li>
+<a href="http://medicine.yale.edu/pathology/">Yale University School of Medicine Clinical Pathology</a> since April 2014.</li>
+</ul>
+
+<p>Have you deployed? Please contact me.</p>
+
+<h2>
+<a id="more-information" class="anchor" href="#more-information" aria-hidden="true"><span class="octicon octicon-link"></span></a>More information</h2>
 
 <p>Details about the tool and its development were presented at the 2014 meeting for the Academy of Clinical Laboratory Physicians and Scientists: "An Open-Source Online Database for Clinical Pathology Consults", Cigdem Himmetoglu Ussakli, Patrick C. Mathias, Sinan Ussakli, Noah G. Hoffman, ACLPS 2014, San Francisco, CA.</p>
       </section>
@@ -64,7 +96,17 @@
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-63054310-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
